@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevTools Terminator - Demo</title>
     
-    <!-- Favicon to prevent 404 -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
     
     <!-- Include DevTools Terminator -->
-    <script src="devtools-terminator.js"></script>
+    <script src="../devtools-terminator.js"></script>
     
     <style>
         * {
@@ -88,16 +88,25 @@
         }
         
         .checkmark {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             background: #48bb78;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
             flex-shrink: 0;
+            position: relative;
+        }
+        
+        .checkmark::after {
+            content: '';
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            margin-bottom: 2px;
         }
         
         .code-block {
@@ -139,12 +148,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔒 DevTools Terminator Demo</h1>
+        <h1>DevTools Terminator Demo</h1>
         <p class="subtitle">Try opening Developer Tools to see the protection in action!</p>
         
         <div class="warning-box">
             <h2>
-                <span>⚠️</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
                 Warning: Protection Active
             </h2>
             <p>
@@ -157,27 +168,27 @@
         <h3 style="margin-bottom: 16px; color: #2d3748;">Active Protection Features:</h3>
         <ul class="feature-list">
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Console logging detection (primary method)</span>
             </li>
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Window size detection (desktop only)</span>
             </li>
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Keyboard shortcut blocking (F12, Ctrl+Shift+I, etc.)</span>
             </li>
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Right-click context menu disabled</span>
             </li>
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Text selection protection</span>
             </li>
             <li>
-                <span class="checkmark">✓</span>
+                <span class="checkmark"></span>
                 <span>Drag and drop disabled</span>
             </li>
         </ul>
@@ -213,7 +224,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
             if (window.DevToolsTerminator) {
                 const config = window.DevToolsTerminator.config;
                 status.innerHTML = `
-                    <strong>✅ DevTools Terminator is Active</strong><br>
+                    <strong>STATUS: DevTools Terminator is Active</strong><br>
                     Version: ${window.DevToolsTerminator.version}<br>
                     Check Interval: ${config.checkInterval}ms<br>
                     Window Size Check: ${config.enableWindowSizeCheck ? 'Enabled' : 'Disabled'}<br>
@@ -221,7 +232,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
                     Terminated: ${window.DevToolsTerminator.isTerminated() ? 'Yes' : 'No'}
                 `;
             } else {
-                status.innerHTML = '<strong>❌ DevTools Terminator not found</strong>';
+                status.innerHTML = '<strong>ERROR: DevTools Terminator not found</strong>';
             }
         }
     </script>
