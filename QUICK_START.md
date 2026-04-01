@@ -76,7 +76,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 ```javascript
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: '/access-denied.html'
+    terminationUrl: '/custom-page.html'
 };
 ```
 
