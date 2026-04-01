@@ -32,8 +32,9 @@
   "files": [
     "devtools-terminator.js",
     "devtools-terminator.d.ts",
-    "examples/",
-    "assets/",
+    "examples/demo.html",
+    "examples/terminated.html",
+    "assets/icons/",
     "README.md",
     "LICENSE"
   ]
