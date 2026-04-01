@@ -137,7 +137,7 @@
                 for (let i = 0; i < cookies.length; i++) {
                     const cookie = cookies[i];
                     const eqPos = cookie.indexOf('=');
-                    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
                     
                     // Try multiple combinations to ensure deletion
                     document.cookie = name + '=;expires=' + pastDate + ';path=/';
@@ -177,10 +177,10 @@
             });
             
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'F12' || e.keyCode === 123 ||
+                if (e.key === 'F12' ||
                     (e.ctrlKey && e.shiftKey) ||
-                    (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) ||
-                    (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.keyCode === 83))) {
+                    (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
+                    (e.ctrlKey && (e.key === 's' || e.key === 'S'))) {
                     e.preventDefault();
                     return false;
                 }
