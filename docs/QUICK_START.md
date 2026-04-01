@@ -10,19 +10,26 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
-cd Devtools-Terminator
+cd Devtools-Terminator/devtools-terminator
 ```
 
 ### Step 2: Copy to Your Project
 
-You need two files:
+You need at minimum two files:
 
-- `devtools-terminator.js` - The main library
-- `terminated.html` - The page users see when their session is terminated
+- `devtools-terminator.js` - The main library (required)
+- `examples/terminated.html` - The termination page (required)
+- `devtools-terminator.d.ts` - TypeScript definitions (optional)
 
 ```bash
+# Copy the main library
 cp devtools-terminator.js /path/to/your/project/
-cp terminated.html /path/to/your/project/
+
+# Copy the termination page
+cp examples/terminated.html /path/to/your/project/
+
+# Optional: Copy TypeScript definitions
+cp devtools-terminator.d.ts /path/to/your/project/
 ```
 
 ### Step 3: Include in Your HTML
@@ -46,7 +53,20 @@ That's it. The protection is now active.
 
 ## Testing
 
-Open your page in a browser and try:
+Start a local web server (required for proper testing):
+
+```bash
+# Using Python 3
+python3 -m http.server 8000
+
+# Using Python 2
+python -m SimpleHTTPServer 8000
+
+# Using PHP
+php -S localhost:8000
+```
+
+Then open `http://localhost:8000` in your browser and try:
 
 - Pressing F12
 - Right-clicking and selecting "Inspect"
