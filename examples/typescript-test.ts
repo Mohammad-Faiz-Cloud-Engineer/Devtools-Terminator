@@ -25,15 +25,17 @@ const config2: DevToolsTerminatorConfig = {
 // Test 3: Window configuration
 window.DEVTOOLS_TERMINATOR_CONFIG = config1;
 
-// Test 4: API types
-const api: DevToolsTerminatorAPI = window.DevToolsTerminator;
+// Test 4: API types with proper optional handling
+const api: DevToolsTerminatorAPI | undefined = window.DevToolsTerminator;
 
-// Test 5: API methods
-const version: string = api.version;
-const isTerminated: boolean = api.isTerminated();
-const currentConfig = api.config;
-
-// Test 6: Manual termination
-api.terminate();
+// Test 5: Safe API access
+if (api) {
+    const version: string = api.version;
+    const isTerminated: boolean = api.isTerminated();
+    const currentConfig = api.config;
+    
+    // Test 6: Manual termination
+    api.terminate();
+}
 
 console.log('All TypeScript types are working correctly!');
