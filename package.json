@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "A powerful JavaScript library that detects and terminates sessions when browser Developer Tools are opened",
   "main": "devtools-terminator.js",
+  "types": "devtools-terminator.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Minification: Use terser or uglify-js to create devtools-terminator.min.js\"",
+    "serve": "python -m http.server 8000 || python3 -m http.server 8000"
   },
   "repository": {
     "type": "git",
@@ -30,6 +33,7 @@
   "homepage": "https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator#readme",
   "files": [
     "devtools-terminator.js",
+    "devtools-terminator.d.ts",
     "examples/",
     "assets/",
     "README.md",
