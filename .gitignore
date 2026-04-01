@@ -15,7 +15,7 @@ build/
 *.min.css
 *.map
 
-# IDE
+# IDE (keep .vscode out of repo)
 .vscode/
 .idea/
 *.swp
@@ -23,6 +23,9 @@ build/
 *~
 *.sublime-project
 *.sublime-workspace
+.project
+.classpath
+*.iml
 
 # OS
 .DS_Store
