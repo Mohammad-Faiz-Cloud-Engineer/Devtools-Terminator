@@ -188,7 +188,6 @@ console.log(window.DevToolsTerminator.isTerminated());
 ## Need Help?
 
 - Report issues: [GitHub Issues](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues)
-- Email: mohdfaiz9695@gmail.com
 
 ---
 
