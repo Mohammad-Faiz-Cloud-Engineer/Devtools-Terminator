@@ -9,10 +9,14 @@ Interactive demonstration page showing all features of DevTools Terminator in ac
 
 **To run:**
 ```bash
-# Using a local server (recommended)
-npx serve .
-# or
-python -m http.server 8000
+# Using Python 3 (recommended)
+python3 -m http.server 8000
+
+# Using Python 2
+python -m SimpleHTTPServer 8000
+
+# Using PHP
+php -S localhost:8000
 
 # Then open: http://localhost:8000/examples/demo.html
 ```
@@ -39,14 +43,14 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 ## Integration
 
-To integrate these examples into your project:
+To integrate into your project:
 
 ```bash
 # Copy the library
-cp ../devtools-terminator.js your-project/
+cp devtools-terminator.js your-project/
 
 # Copy the termination page
-cp terminated.html your-project/
+cp examples/terminated.html your-project/
 
 # Include in your HTML
 <script src="devtools-terminator.js"></script>
