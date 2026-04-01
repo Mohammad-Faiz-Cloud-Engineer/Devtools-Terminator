@@ -125,11 +125,23 @@ See [TESTING.md](../TESTING.md) for comprehensive testing procedures.
 
 Your changes must work on:
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-- Mobile browsers (iOS Safari, Chrome Mobile)
+- **Firefox** 88+ (All platforms) - Recommended
+- **Safari** 14+ (macOS, iOS) - Recommended
+- **Edge** 90+ (All platforms) - Recommended
+- **Opera** 76+ (All platforms)
+- **Chromium-based browsers** (Brave, Vivaldi, Arc, etc.) - Fully supported
+- **Chrome Mobile** (Android) - Fully supported
+
+### Chrome Browser Limitations
+
+**Chrome desktop browser has limited support:**
+- Windows: Conditional (blocked on large displays)
+- Linux: Not supported
+- macOS: Conditional (blocked on large displays)
+
+**Reason:** Chrome's DevTools are too optimized for client-side code inspection, making it easy for users to view source code. This library aims to deter casual inspection.
+
+**Important:** When testing, prioritize Firefox, Safari, Edge, and Chromium-based browsers. Chrome desktop may have different behavior.
 
 ## Documentation
 
