@@ -25,27 +25,33 @@ This isn't security theater. The code is battle-tested in production on the Rox 
 
 ## Installation
 
+### NPM (Recommended)
+
+```bash
+npm install devtools-terminator
+```
+
 ### Direct Download
 
 Clone the repository and copy the files you need:
 
 ```bash
 git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
-cp Devtools-Terminator/devtools-terminator.js your-project/
-cp Devtools-Terminator/examples/terminated.html your-project/
+cp Devtools-Terminator/devtools-terminator/devtools-terminator.js your-project/
+cp Devtools-Terminator/devtools-terminator/examples/terminated.html your-project/
 ```
 
-### CDN (Coming Soon)
+### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator@1.0.0/devtools-terminator.js"></script>
+<!-- Latest version -->
+<script src="https://cdn.jsdelivr.net/npm/devtools-terminator@latest/devtools-terminator.js"></script>
+
+<!-- Specific version (recommended for production) -->
+<script src="https://cdn.jsdelivr.net/npm/devtools-terminator@1.0.0/devtools-terminator.js"></script>
 ```
 
-### NPM (Coming Soon)
-
-```bash
-npm install devtools-terminator
-```
+### Direct Download
 
 ## Quick Start
 
@@ -73,7 +79,7 @@ If you need to customize the behavior, set the configuration before including th
 ```html
 <script>
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: 'examples/terminated.html',
+    terminationUrl: 'terminated.html',  // Relative to current page
     checkInterval: 100,
     enableWindowSizeCheck: true,
     enableKeyboardBlock: true,
@@ -90,7 +96,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `terminationUrl` | string | `examples/terminated.html` | Where to redirect after detection |
+| `terminationUrl` | string | `terminated.html` | Where to redirect after detection |
 | `checkInterval` | number | `100` | Milliseconds between detection checks |
 | `enableWindowSizeCheck` | boolean | `true` | Enable window size detection method |
 | `enableKeyboardBlock` | boolean | `true` | Block DevTools keyboard shortcuts |
@@ -256,7 +262,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
         });
         
         // Then redirect
-        window.location.href = '/access-denied.html';
+        window.location.href = 'access-denied.html';
     }
 };
 </script>
@@ -300,14 +306,20 @@ Inspired by various DevTools detection techniques from the security research com
 ```
 devtools-terminator/
 ├── devtools-terminator.js       # Main library
+├── devtools-terminator.d.ts     # TypeScript definitions
 ├── examples/                    # Demo and termination pages
 ├── assets/                      # Icons and static resources
 ├── docs/                        # Documentation
+├── TESTING.md                   # Testing guide
+├── BUILD.md                     # Build instructions
+├── SECURITY.md                  # Security policy
 └── README.md                    # This file
 ```
 
-For detailed project structure, see [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
+For detailed project structure, see [PROJECT_INFO.md](PROJECT_INFO.md).
 
 ## Disclaimer
 
 This tool is provided as-is for legitimate security purposes. The author is not responsible for misuse or any damages caused by this software. Always comply with applicable laws and respect user privacy.
+
+**This is a deterrent, not a security solution.** Always implement proper server-side security. See [SECURITY.md](SECURITY.md) for important security considerations.
