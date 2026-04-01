@@ -43,8 +43,29 @@
     // ==================== STATE ====================
     let _terminated = false;
     let _devtoolsOpen = false;
+    let _monitoringInterval = null;
+    let _initialized = false;
     
     // ==================== CORE FUNCTIONS ====================
+    
+    /**
+     * Clear all cookies properly
+     */
+    function clearAllCookies() {
+        const cookies = document.cookie.split(';');
+        const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+        
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i];
+            const eqPos = cookie.indexOf('=');
+            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+            
+            // Try multiple combinations to ensure deletion
+            document.cookie = name + '=;expires=' + pastDate + ';path=/';
+            document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
+            document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+        }
+    }
     
     /**
      * Terminate session and redirect to termination page
@@ -53,26 +74,29 @@
         if (_terminated) return;
         _terminated = true;
         
-        // Execute custom handler if provided
+        // Stop monitoring immediately
+        if (_monitoringInterval !== null) {
+            clearInterval(_monitoringInterval);
+            _monitoringInterval = null;
+        }
+        
+        // Execute custom handler if provided (but don't let it block default behavior)
         if (typeof CUSTOM_TERMINATE_HANDLER === 'function') {
             try {
                 CUSTOM_TERMINATE_HANDLER();
-                return; // Let custom handler control the flow
             } catch (e) {
-                console.error('Custom terminate handler failed:', e);
+                // Custom handler failed, continue with default behavior
             }
         }
         
-        // Default termination behavior
+        // Default termination behavior - always runs
         try {
             // Clear all storage
             localStorage.clear();
             sessionStorage.clear();
             
-            // Clear all cookies
-            document.cookie.split(';').forEach(function(c) {
-                document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-            });
+            // Clear all cookies properly
+            clearAllCookies();
         } catch (e) {
             // Storage clearing failed, continue anyway
         }
@@ -93,6 +117,7 @@
             _devtoolsOpen = true;
             // Terminate immediately when getter is triggered
             terminateSession();
+            return 'devtools-terminator';
         }
     });
     
@@ -253,8 +278,12 @@
      */
     function startMonitoring() {
         // Check every CHECK_INTERVAL ms for near-instant detection
-        setInterval(function() {
-            if (_terminated) return;
+        _monitoringInterval = setInterval(function() {
+            if (_terminated) {
+                clearInterval(_monitoringInterval);
+                _monitoringInterval = null;
+                return;
+            }
             checkDevTools();
             if (checkWindowSize()) {
                 terminateSession();
@@ -268,6 +297,10 @@
      * Initialize DevTools Terminator
      */
     function init() {
+        // Prevent multiple initialization
+        if (_initialized) return;
+        _initialized = true;
+        
         // Setup protections
         setupKeyboardProtection();
         disableContextMenu();
@@ -279,11 +312,6 @@
             document.addEventListener('DOMContentLoaded', startMonitoring);
         } else {
             startMonitoring();
-        }
-        
-        // Log initialization (only in dev mode)
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.log('DevTools Terminator initialized');
         }
     }
     
