@@ -61,7 +61,7 @@ If you want to customize the behavior, add configuration before the script:
 ```html
 <script>
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: '/custom-page.html',
+    terminationUrl: 'custom-page.html',  // Relative to current page
     checkInterval: 100,
     enableWindowSizeCheck: true,
     enableKeyboardBlock: true
@@ -76,7 +76,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 ```javascript
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: '/custom-page.html'
+    terminationUrl: 'custom-page.html'  // Relative to current page
 };
 ```
 
@@ -86,7 +86,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 window.DEVTOOLS_TERMINATOR_CONFIG = {
     onTerminate: function() {
         alert('Developer tools detected');
-        window.location.href = '/bye.html';
+        window.location.href = 'bye.html';
     }
 };
 ```
@@ -137,7 +137,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
         });
         
         // Then terminate
-        window.location.href = '/terminated.html';
+        window.location.href = 'terminated.html';
     }
 };
 ```
