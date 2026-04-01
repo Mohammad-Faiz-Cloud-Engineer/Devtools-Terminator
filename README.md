@@ -46,63 +46,472 @@ This isn't security theater. The code is battle-tested in production on the Rox 
 - **Zero dependencies**: Pure vanilla JavaScript, under 5KB when minified
 - **Configurable**: Customize behavior without editing source code
 - **Cross-browser**: Firefox, Safari, Edge, Opera, and Chromium-based browsers fully supported
-- **TypeScript support**: Includes .d.ts definitions
+- **TypeScript support**: Full type definitions with IntelliSense support (.d.ts included)
 
 ---
 
 ## Quick Start
 
-### 1. Get the Files
+Get up and running in 3 simple steps:
+
+### Step 1: Download the Library
 
 ```bash
 git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
 cd Devtools-Terminator/devtools-terminator
 ```
 
-### 2. Copy to Your Project
+### Step 2: Copy Files to Your Project
 
-You need two files:
-- `devtools-terminator.js` - The main library
-- `examples/terminated.html` - The termination page
+Copy these two required files:
 
 ```bash
+# Copy the main library
 cp devtools-terminator.js /path/to/your/project/
+
+# Copy the termination page
 cp examples/terminated.html /path/to/your/project/
+
+# Optional: Copy TypeScript definitions if using TypeScript
+cp devtools-terminator.d.ts /path/to/your/project/
 ```
 
-### 3. Include in Your HTML
+Your project structure should look like:
+```
+your-project/
+├── index.html
+├── devtools-terminator.js       ← Main library
+├── terminated.html               ← Termination page
+└── devtools-terminator.d.ts     ← TypeScript definitions (optional)
+```
+
+### Step 3: Add to Your HTML
+
+Add the script tag in your HTML `<head>` section **before** any other scripts:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Protected Application</title>
+    
+    <!-- Include DevTools Terminator FIRST -->
+    <script src="devtools-terminator.js"></script>
+    
+    <!-- Your other scripts -->
+    <script src="app.js"></script>
+</head>
+<body>
+    <h1>Protected Content</h1>
+    <p>Try opening DevTools (F12) - you'll be redirected immediately!</p>
+</body>
+</html>
+```
+
+**That's it!** The protection is now active. No configuration needed for basic usage.
+
+### Step 4: Test the Protection
+
+Start a local web server (required for proper testing):
+
+```bash
+# Using Python 3 (recommended)
+python3 -m http.server 8000
+
+# Using Python 2
+python -m SimpleHTTPServer 8000
+
+# Using PHP
+php -S localhost:8000
+
+# Using Node.js (if you have http-server installed)
+npx http-server -p 8000
+```
+
+Open your browser and navigate to:
+```
+http://localhost:8000
+```
+
+**Try these actions:**
+- Press `F12` → Should redirect to terminated.html
+- Press `Ctrl+Shift+I` (Windows/Linux) or `Cmd+Option+I` (Mac) → Should redirect
+- Right-click and select "Inspect" → Context menu blocked
+- Press `Ctrl+U` to view source → Blocked
+
+If you see the termination page, it's working correctly!
+
+---
+
+## Complete Usage Guide
+
+### Basic Usage (No Configuration)
+
+The simplest way to use the library - just include the script:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Protected Application</title>
     <script src="devtools-terminator.js"></script>
 </head>
 <body>
-    <h1>Your content here</h1>
+    <!-- Your content -->
 </body>
 </html>
 ```
 
-That's it! The protection is now active.
+**Default behavior:**
+- Redirects to `terminated.html` when DevTools detected
+- Checks every 100ms
+- All detection methods enabled
+- Works on desktop and mobile
 
-### 4. Test It
+### Advanced Usage (With Configuration)
 
-Start a local server:
+Customize the behavior by setting configuration **before** including the script:
 
-```bash
-# Python 3
-python3 -m http.server 8000
-
-# Python 2
-python -m SimpleHTTPServer 8000
-
-# PHP
-php -S localhost:8000
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Configure BEFORE including the script -->
+    <script>
+    window.DEVTOOLS_TERMINATOR_CONFIG = {
+        terminationUrl: 'custom-page.html',  // Your custom termination page
+        checkInterval: 100,                   // Check every 100ms
+        enableWindowSizeCheck: true,          // Enable window size detection
+        enableKeyboardBlock: true,            // Block keyboard shortcuts
+        disableOnMobile: false,               // Enable on mobile devices
+        onTerminate: function() {             // Custom handler (optional)
+            console.log('DevTools detected!');
+            // Your custom logic here
+        }
+    };
+    </script>
+    
+    <!-- Include the library AFTER configuration -->
+    <script src="devtools-terminator.js"></script>
+</head>
+<body>
+    <!-- Your content -->
+</body>
+</html>
 ```
 
-Open `http://localhost:8000` and press F12. You should be redirected immediately.
+### Usage with TypeScript
+
+For TypeScript projects, reference the type definitions:
+
+```typescript
+/// <reference path="./devtools-terminator.d.ts" />
+
+// Configure with full type safety and IntelliSense
+window.DEVTOOLS_TERMINATOR_CONFIG = {
+    terminationUrl: 'terminated.html',
+    checkInterval: 100,
+    enableWindowSizeCheck: true,
+    enableKeyboardBlock: true
+};
+
+// Access the API with type checking
+const api: DevToolsTerminatorAPI = window.DevToolsTerminator;
+console.log('Version:', api.version);
+console.log('Is terminated:', api.isTerminated());
+```
+
+See `examples/TYPESCRIPT.md` for complete TypeScript integration guide.
+
+### Usage in Different Environments
+
+#### Static HTML Sites
+
+```html
+<script src="devtools-terminator.js"></script>
+```
+
+#### PHP Applications
+
+```php
+<!DOCTYPE html>
+<html>
+<head>
+    <?php if ($requireProtection): ?>
+        <script src="devtools-terminator.js"></script>
+    <?php endif; ?>
+</head>
+<body>
+    <!-- Your content -->
+</body>
+</html>
+```
+
+#### React Applications
+
+```jsx
+// In your public/index.html
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="%PUBLIC_URL%/devtools-terminator.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>
+```
+
+Or dynamically load it:
+
+```jsx
+import { useEffect } from 'react';
+
+function App() {
+    useEffect(() => {
+        // Configure before loading
+        window.DEVTOOLS_TERMINATOR_CONFIG = {
+            terminationUrl: '/terminated.html'
+        };
+        
+        // Load the script
+        const script = document.createElement('script');
+        script.src = '/devtools-terminator.js';
+        script.async = true;
+        document.head.appendChild(script);
+        
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+    
+    return <div>Your App</div>;
+}
+```
+
+#### Vue Applications
+
+```html
+<!-- In your public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="<%= BASE_URL %>devtools-terminator.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>
+```
+
+#### Angular Applications
+
+```html
+<!-- In your src/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="devtools-terminator.js"></script>
+</head>
+<body>
+    <app-root></app-root>
+</body>
+</html>
+```
+
+#### Next.js Applications
+
+```jsx
+// In pages/_document.js
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+    return (
+        <Html>
+            <Head>
+                <script src="/devtools-terminator.js"></script>
+            </Head>
+            <body>
+                <Main />
+                <NextScript />
+            </body>
+        </Html>
+    );
+}
+```
+
+### Common Use Cases
+
+#### 1. Protect Only Production
+
+```html
+<script>
+// Only load in production
+if (window.location.hostname !== 'localhost' && 
+    window.location.hostname !== '127.0.0.1') {
+    var script = document.createElement('script');
+    script.src = 'devtools-terminator.js';
+    document.head.appendChild(script);
+}
+</script>
+```
+
+#### 2. Protect Specific Pages
+
+```html
+<!-- Only on admin pages -->
+<?php if ($isAdminPage): ?>
+    <script src="devtools-terminator.js"></script>
+<?php endif; ?>
+```
+
+#### 3. Custom Termination Logic
+
+```html
+<script>
+window.DEVTOOLS_TERMINATOR_CONFIG = {
+    onTerminate: function() {
+        // Log to your analytics
+        fetch('/api/security-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                event: 'devtools_detected',
+                timestamp: new Date().toISOString(),
+                page: window.location.pathname,
+                userAgent: navigator.userAgent
+            })
+        });
+        
+        // Show custom message before redirect
+        alert('Developer tools detected. Session will be terminated.');
+        
+        // Default termination will still occur
+    }
+};
+</script>
+<script src="devtools-terminator.js"></script>
+```
+
+#### 4. Disable on Mobile Devices
+
+```html
+<script>
+window.DEVTOOLS_TERMINATOR_CONFIG = {
+    disableOnMobile: true  // Won't activate on phones/tablets
+};
+</script>
+<script src="devtools-terminator.js"></script>
+```
+
+#### 5. Custom Termination Page
+
+```html
+<script>
+window.DEVTOOLS_TERMINATOR_CONFIG = {
+    terminationUrl: '/security/access-denied.html'
+};
+</script>
+<script src="devtools-terminator.js"></script>
+```
+
+### Using the Public API
+
+After the library loads, you can interact with it programmatically:
+
+```javascript
+// Wait for library to load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if library is loaded
+    if (window.DevToolsTerminator) {
+        // Get version
+        var version = window.DevToolsTerminator.version;
+        console.log('Protected by DevTools Terminator v' + version);
+        
+        // Check if session is terminated
+        var isTerminated = window.DevToolsTerminator.isTerminated();
+        console.log('Session terminated:', isTerminated);
+        
+        // Get current configuration
+        var config = window.DevToolsTerminator.config;
+        console.log('Check interval:', config.checkInterval + 'ms');
+        
+        // Manually trigger termination (if needed)
+        // window.DevToolsTerminator.terminate();
+    }
+});
+```
+
+### Customizing the Termination Page
+
+The `terminated.html` page can be customized to match your brand:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Access Denied</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛔ Access Denied</h1>
+        <p>Developer tools access has been detected.</p>
+        <p>Your session has been terminated for security reasons.</p>
+        <p>Error Code: SEC_DEVTOOLS_001</p>
+    </div>
+    
+    <!-- Keep the cleanup script from the original terminated.html -->
+    <script>
+        // Cleanup script here (copy from original terminated.html)
+    </script>
+</body>
+</html>
+```
+
+### Troubleshooting
+
+**Protection not working?**
+
+1. **Check file paths** - Ensure `devtools-terminator.js` and `terminated.html` are in the correct locations
+2. **Use a web server** - Don't open HTML files directly (file://), use http://localhost
+3. **Check browser** - Chrome desktop has limited support, use Firefox, Safari, or Edge
+4. **Check console** - Look for JavaScript errors before DevTools closes
+5. **Verify script order** - Configuration must be set BEFORE including the script
+
+**False positives on mobile?**
+
+```javascript
+window.DEVTOOLS_TERMINATOR_CONFIG = {
+    disableOnMobile: true
+};
+```
+
+**Want to test without termination?**
+
+Comment out the script temporarily:
+
+```html
+<!-- <script src="devtools-terminator.js"></script> -->
+```
 
 ---
 
@@ -364,8 +773,11 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 ### Demo Files
 
 See the `examples/` directory:
-- `demo.html` - Interactive demonstration
+- `demo.html` - Interactive JavaScript demonstration
 - `terminated.html` - Default termination page (customizable)
+- `typescript-demo.html` - Interactive TypeScript demonstration
+- `typescript-demo.ts` - Comprehensive TypeScript examples (12 patterns)
+- `TYPESCRIPT.md` - Complete TypeScript integration guide
 
 ---
 
