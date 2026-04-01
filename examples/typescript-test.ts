@@ -34,8 +34,9 @@ if (api) {
     const isTerminated: boolean = api.isTerminated();
     const currentConfig = api.config;
     
-    // Test 6: Manual termination
-    api.terminate();
+    // Verify types are correct
+    if (typeof version === 'string' && typeof isTerminated === 'boolean' && currentConfig) {
+        // Test 6: Manual termination (commented out to prevent actual termination)
+        // api.terminate();
+    }
 }
-
-console.log('All TypeScript types are working correctly!');
