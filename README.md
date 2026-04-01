@@ -32,7 +32,7 @@ Clone the repository and copy the files you need:
 ```bash
 git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
 cp Devtools-Terminator/devtools-terminator.js your-project/
-cp Devtools-Terminator/terminated.html your-project/
+cp Devtools-Terminator/examples/terminated.html your-project/
 ```
 
 ### CDN (Coming Soon)
@@ -73,7 +73,7 @@ If you need to customize the behavior, set the configuration before including th
 ```html
 <script>
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: 'terminated.html',
+    terminationUrl: 'examples/terminated.html',
     checkInterval: 100,
     enableWindowSizeCheck: true,
     enableKeyboardBlock: true,
@@ -90,7 +90,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `terminationUrl` | string | `terminated.html` | Where to redirect after detection |
+| `terminationUrl` | string | `examples/terminated.html` | Where to redirect after detection |
 | `checkInterval` | number | `100` | Milliseconds between detection checks |
 | `enableWindowSizeCheck` | boolean | `true` | Enable window size detection method |
 | `enableKeyboardBlock` | boolean | `true` | Block DevTools keyboard shortcuts |
@@ -265,7 +265,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 ## Contributing
 
-Contributions are welcome. Please read CONTRIBUTING.md before submitting pull requests.
+Contributions are welcome. Please read [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) before submitting pull requests.
 
 To contribute:
 
@@ -292,6 +292,21 @@ Inspired by various DevTools detection techniques from the security research com
 
 - Report bugs: [GitHub Issues](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues)
 - Request features: [GitHub Issues](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues)
+- Documentation: [docs/](docs/)
+- Examples: [examples/](examples/)
+
+## Project Structure
+
+```
+devtools-terminator/
+├── devtools-terminator.js       # Main library
+├── examples/                    # Demo and termination pages
+├── assets/                      # Icons and static resources
+├── docs/                        # Documentation
+└── README.md                    # This file
+```
+
+For detailed project structure, see [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md).
 
 ## Disclaimer
 
