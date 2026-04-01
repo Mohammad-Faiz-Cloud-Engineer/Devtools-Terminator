@@ -25,30 +25,22 @@ This isn't security theater. The code is battle-tested in production on the Rox 
 
 ## Installation
 
-### NPM (Recommended)
-
-```bash
-npm install devtools-terminator
-```
-
 ### Direct Download
 
 Clone the repository and copy the files you need:
 
 ```bash
+# Clone the repository
 git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
+
+# Copy the main library file
 cp Devtools-Terminator/devtools-terminator/devtools-terminator.js your-project/
+
+# Copy the termination page
 cp Devtools-Terminator/devtools-terminator/examples/terminated.html your-project/
-```
 
-### CDN
-
-```html
-<!-- Latest version -->
-<script src="https://cdn.jsdelivr.net/npm/devtools-terminator@latest/devtools-terminator.js"></script>
-
-<!-- Specific version (recommended for production) -->
-<script src="https://cdn.jsdelivr.net/npm/devtools-terminator@1.0.0/devtools-terminator.js"></script>
+# Optional: Copy TypeScript definitions if using TypeScript
+cp Devtools-Terminator/devtools-terminator/devtools-terminator.d.ts your-project/
 ```
 
 ### Direct Download
@@ -305,18 +297,19 @@ Inspired by various DevTools detection techniques from the security research com
 
 ```
 devtools-terminator/
-├── devtools-terminator.js       # Main library
-├── devtools-terminator.d.ts     # TypeScript definitions
+├── devtools-terminator.js       # Main library (ready to use)
+├── devtools-terminator.d.ts     # TypeScript definitions (optional)
 ├── examples/                    # Demo and termination pages
 ├── assets/                      # Icons and static resources
 ├── docs/                        # Documentation
 ├── TESTING.md                   # Testing guide
-├── BUILD.md                     # Build instructions
+├── BUILD.md                     # Build instructions (optional minification)
 ├── SECURITY.md                  # Security policy
+├── NO_NPM_SETUP.md             # Guide for using without NPM
 └── README.md                    # This file
 ```
 
-For detailed project structure, see [PROJECT_INFO.md](PROJECT_INFO.md).
+**Note**: No NPM setup required! See [NO_NPM_SETUP.md](NO_NPM_SETUP.md) for details.
 
 ## Disclaimer
 
