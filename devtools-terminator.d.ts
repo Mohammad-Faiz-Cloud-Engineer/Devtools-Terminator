@@ -62,11 +62,13 @@ export interface DevToolsTerminatorAPI {
 
     /**
      * Manually trigger session termination
+     * @returns void
      */
     terminate(): void;
 
     /**
      * Check if session has been terminated
+     * @returns true if session has been terminated, false otherwise
      */
     isTerminated(): boolean;
 }
