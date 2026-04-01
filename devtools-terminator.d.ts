@@ -8,7 +8,7 @@
 /**
  * Configuration options for DevTools Terminator
  */
-export interface DevToolsTerminatorConfig {
+declare interface DevToolsTerminatorConfig {
     /**
      * URL to redirect to when DevTools are detected
      * @default 'terminated.html'
@@ -49,7 +49,7 @@ export interface DevToolsTerminatorConfig {
 /**
  * DevTools Terminator Public API
  */
-export interface DevToolsTerminatorAPI {
+declare interface DevToolsTerminatorAPI {
     /**
      * Library version
      */
@@ -77,20 +77,16 @@ export interface DevToolsTerminatorAPI {
  * Global configuration object
  * Set this before including the devtools-terminator.js script
  */
-declare global {
-    interface Window {
-        /**
-         * Configuration for DevTools Terminator
-         * Must be set before the script loads
-         */
-        DEVTOOLS_TERMINATOR_CONFIG?: DevToolsTerminatorConfig;
+declare interface Window {
+    /**
+     * Configuration for DevTools Terminator
+     * Must be set before the script loads
+     */
+    DEVTOOLS_TERMINATOR_CONFIG?: DevToolsTerminatorConfig;
 
-        /**
-         * DevTools Terminator Public API
-         * Available after the script loads
-         */
-        DevToolsTerminator: DevToolsTerminatorAPI;
-    }
+    /**
+     * DevTools Terminator Public API
+     * Available after the script loads
+     */
+    DevToolsTerminator: DevToolsTerminatorAPI;
 }
-
-export {};
