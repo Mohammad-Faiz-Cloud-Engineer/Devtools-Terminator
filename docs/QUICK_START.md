@@ -170,8 +170,23 @@ Check these common issues:
 
 1. **File path is wrong** - Make sure the script src points to the correct location
 2. **JavaScript errors** - Open the console (before protection loads) and check for errors
-3. **Browser compatibility** - Ensure you're using a supported browser version
-4. **Script loading order** - The script should load before your other JavaScript
+3. **Browser compatibility** - Ensure you're using a supported browser (Firefox, Safari, Edge, or Chromium-based browsers recommended)
+4. **Chrome browser** - If using Chrome desktop, it may have limited support. Try Firefox or Edge instead.
+5. **Script loading order** - The script should load before your other JavaScript
+
+### Chrome Browser Issues
+
+If the library doesn't work as expected in Chrome:
+
+**This is expected behavior.** Chrome desktop has limited support due to its highly optimized DevTools.
+
+**Solutions:**
+- Use Firefox, Safari, or Microsoft Edge (recommended)
+- Use Chromium-based browsers (Brave, Vivaldi, Arc) - these ARE supported
+- On mobile: Chrome Mobile works fine
+- On small displays: Chrome may work
+
+See [BROWSER_COMPATIBILITY.md](../BROWSER_COMPATIBILITY.md) for details.
 
 ### False Positives on Mobile
 
