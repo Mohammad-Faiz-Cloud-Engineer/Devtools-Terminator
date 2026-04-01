@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build instructions (BUILD.md)
 - Security policy (SECURITY.md)
 - EditorConfig for consistent coding styles
-- NPM package configuration
+- Simplified package.json (no NPM dependencies)
 - GitHub Actions workflow for quality checks
 
 ### Fixed
@@ -77,14 +77,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Planned Features
 
 - Minified version (devtools-terminator.min.js)
-- Unit test suite with Jest or Mocha
-- Automated browser testing with Puppeteer
 - Additional configuration options
 - Whitelist mode for development environments
 - Event hooks for detection stages
 - Better documentation with more examples
-- NPM package publication
-- CDN hosting on jsDelivr and unpkg
 
 ### Under Consideration
 
