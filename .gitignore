@@ -3,12 +3,17 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Build outputs
 dist/
 build/
 *.min.js
 *.min.css
+*.map
 
 # IDE
 .vscode/
@@ -16,16 +21,31 @@ build/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+*.tmp
+*.temp
 
 # Testing
 coverage/
 .nyc_output/
+*.lcov
+test-results/
+junit.xml
 
-# Misc
+# Environment
 *.log
 .env
 .env.local
+.env.*.local
+
+# Misc
+*.bak
+*.orig
+*_backup.*
+*_old.*
