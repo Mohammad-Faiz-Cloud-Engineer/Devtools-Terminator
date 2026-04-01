@@ -284,7 +284,6 @@ MIT License. See LICENSE file for details.
 Created by Mohammad Faiz, extracted from the Rox AI platform and open-sourced for the developer community.
 
 - GitHub: [@Mohammad-Faiz-Cloud-Engineer](https://github.com/Mohammad-Faiz-Cloud-Engineer)
-- Email: mohdfaiz9695@gmail.com
 - Repository: [Devtools-Terminator](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator)
 
 Inspired by various DevTools detection techniques from the security research community.
@@ -293,7 +292,6 @@ Inspired by various DevTools detection techniques from the security research com
 
 - Report bugs: [GitHub Issues](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues)
 - Request features: [GitHub Issues](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues)
-- Email: mohdfaiz9695@gmail.com
 
 ## Disclaimer
 
