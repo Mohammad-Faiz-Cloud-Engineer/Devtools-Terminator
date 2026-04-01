@@ -73,7 +73,7 @@ If you need to customize the behavior, set the configuration before including th
 ```html
 <script>
 window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: '/terminated.html',
+    terminationUrl: 'terminated.html',
     checkInterval: 100,
     enableWindowSizeCheck: true,
     enableKeyboardBlock: true,
@@ -90,7 +90,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `terminationUrl` | string | `/terminated.html` | Where to redirect after detection |
+| `terminationUrl` | string | `terminated.html` | Where to redirect after detection |
 | `checkInterval` | number | `100` | Milliseconds between detection checks |
 | `enableWindowSizeCheck` | boolean | `true` | Enable window size detection method |
 | `enableKeyboardBlock` | boolean | `true` | Block DevTools keyboard shortcuts |
