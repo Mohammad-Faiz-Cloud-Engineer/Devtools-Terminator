@@ -18,7 +18,7 @@
  * 
  * Configuration (optional):
  *   window.DEVTOOLS_TERMINATOR_CONFIG = {
- *       terminationUrl: '/terminated.html',
+ *       terminationUrl: 'terminated.html',
  *       checkInterval: 100,
  *       enableWindowSizeCheck: true,
  *       enableKeyboardBlock: true,
@@ -33,7 +33,7 @@
     // ==================== CONFIGURATION ====================
     const config = window.DEVTOOLS_TERMINATOR_CONFIG || {};
     
-    const TERMINATION_URL = config.terminationUrl || '/terminated.html';
+    const TERMINATION_URL = config.terminationUrl || 'terminated.html';
     const CHECK_INTERVAL = config.checkInterval || 100;
     const ENABLE_WINDOW_SIZE_CHECK = config.enableWindowSizeCheck !== false;
     const ENABLE_KEYBOARD_BLOCK = config.enableKeyboardBlock !== false;
