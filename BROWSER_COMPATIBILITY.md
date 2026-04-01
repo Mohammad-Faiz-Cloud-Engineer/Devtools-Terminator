@@ -275,7 +275,7 @@ If you encounter browser compatibility issues:
 
 ---
 
-## 🔄 Updates
+## Updates
 
 This compatibility guide is updated with each release. Check the version:
 
