@@ -1,6 +1,6 @@
 # Testing Guide
 
-This document provides comprehensive testing procedures for DevTools Terminator.
+Manual testing procedures for DevTools Terminator.
 
 ## Manual Testing
 
@@ -266,14 +266,26 @@ document.cookie = 'test=data';
 
 Test on each browser:
 
-| Browser | Version | Test 1-6 | Mobile Tests | Notes |
-|---------|---------|----------|--------------|-------|
-| Chrome | 90+ | [ ] | [ ] | |
-| Firefox | 88+ | [ ] | [ ] | |
-| Safari | 14+ | [ ] | [ ] | |
-| Edge | 90+ | [ ] | [ ] | |
-| Chrome Mobile | Latest | [ ] | [ ] | |
-| Safari iOS | Latest | [ ] | [ ] | |
+| Browser | Version | Desktop Tests | Mobile Tests | Support Level | Notes |
+|---------|---------|---------------|--------------|---------------|-------|
+| Firefox | 88+ | [ ] | [ ] | Full | Recommended |
+| Safari | 14+ | [ ] | [ ] | Full | Recommended |
+| Edge | 90+ | [ ] | [ ] | Full | Recommended |
+| Opera | 76+ | [ ] | [ ] | Full | |
+| Brave | Latest | [ ] | [ ] | Full | Chromium-based |
+| Vivaldi | Latest | [ ] | [ ] | Full | Chromium-based |
+| Chrome (Windows) | 90+ | [ ] | N/A | Conditional | Blocked on large displays |
+| Chrome (Linux) | 90+ | [ ] | N/A | Limited | Not recommended |
+| Chrome (macOS) | 90+ | [ ] | N/A | Conditional | Blocked on large displays |
+| Chrome Mobile | Latest | N/A | [ ] | Full | Android supported |
+| Safari iOS | Latest | N/A | [ ] | Full | |
+
+**Chrome Browser Notes:**
+- Chrome has limited support due to highly optimized DevTools
+- Client-side code inspection is too easy in Chrome
+- Chromium-based browsers (Brave, Vivaldi, Arc) ARE fully supported
+- Only official Chrome browser has limitations
+- Chrome Mobile on Android is fully supported
 
 ## Performance Testing
 
