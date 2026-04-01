@@ -1,6 +1,6 @@
 # Build Guide
 
-This document explains how to prepare DevTools Terminator for distribution.
+How to prepare DevTools Terminator for distribution.
 
 ## Prerequisites
 
