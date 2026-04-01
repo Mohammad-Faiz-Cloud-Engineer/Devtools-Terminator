@@ -7,6 +7,10 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Session Terminated</title>
+    
+    <!-- Favicon to prevent 404 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛔</text></svg>">
+    
     <style>
         * {
             margin: 0;
@@ -138,6 +142,9 @@
                     const cookie = cookies[i];
                     const eqPos = cookie.indexOf('=');
                     const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+                    
+                    // Skip empty cookie names
+                    if (!name) continue;
                     
                     // Try multiple combinations to ensure deletion
                     document.cookie = name + '=;expires=' + pastDate + ';path=/';
