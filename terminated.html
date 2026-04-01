@@ -130,27 +130,37 @@
                 localStorage.clear();
                 sessionStorage.clear();
                 
-                // Clear cookies
-                document.cookie.split(';').forEach(function(c) {
-                    document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/');
-                });
+                // Clear cookies properly with past date
+                const cookies = document.cookie.split(';');
+                const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
                 
-                // Unregister service workers
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i];
+                    const eqPos = cookie.indexOf('=');
+                    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    
+                    // Try multiple combinations to ensure deletion
+                    document.cookie = name + '=;expires=' + pastDate + ';path=/';
+                    document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
+                    document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+                }
+                
+                // Unregister service workers with error handling
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         registrations.forEach(function(registration) {
-                            registration.unregister();
+                            registration.unregister().catch(function() {});
                         });
-                    });
+                    }).catch(function() {});
                 }
                 
-                // Clear caches
+                // Clear caches with error handling
                 if ('caches' in window) {
                     caches.keys().then(function(names) {
                         names.forEach(function(name) {
-                            caches.delete(name);
+                            caches.delete(name).catch(function() {});
                         });
-                    });
+                    }).catch(function() {});
                 }
             } catch (e) {}
             
@@ -161,12 +171,18 @@
             });
             
             // Disable all interactions
-            document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            document.addEventListener('contextmenu', function(e) { 
+                e.preventDefault(); 
+                return false;
+            });
+            
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'F12' || e.keyCode === 123 ||
                     (e.ctrlKey && e.shiftKey) ||
-                    (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S'))) {
+                    (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.keyCode === 85)) ||
+                    (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.keyCode === 83))) {
                     e.preventDefault();
+                    return false;
                 }
             });
         })();
