@@ -82,10 +82,14 @@
         if (_terminated) return;
         _terminated = true;
         
-        // Stop monitoring immediately
-        if (_monitoringInterval !== null) {
-            clearInterval(_monitoringInterval);
-            _monitoringInterval = null;
+        // Stop monitoring immediately - do this first to prevent memory leaks
+        try {
+            if (_monitoringInterval !== null) {
+                clearInterval(_monitoringInterval);
+                _monitoringInterval = null;
+            }
+        } catch (e) {
+            // Interval clearing failed, continue anyway
         }
         
         // Execute custom handler if provided (but don't let it block default behavior)
@@ -130,6 +134,8 @@
     });
     
     function checkDevTools() {
+        // Don't reset flag if already terminated (prevents race conditions)
+        if (_terminated) return false;
         _devtoolsOpen = false;
         console.log(element);
         console.clear();
@@ -305,7 +311,7 @@
      * Initialize DevTools Terminator
      */
     function init() {
-        // Prevent multiple initialization
+        // Prevent multiple initialization - set flag immediately
         if (_initialized) return;
         _initialized = true;
         
