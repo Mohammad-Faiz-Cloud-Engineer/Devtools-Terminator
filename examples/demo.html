@@ -227,19 +227,18 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
     
     <script>
         function testProtection() {
-            const status = document.getElementById('status');
+            var status = document.getElementById('status');
             status.style.display = 'block';
             
             if (window.DevToolsTerminator) {
-                const config = window.DevToolsTerminator.config;
-                status.innerHTML = `
-                    <strong>STATUS: DevTools Terminator is Active</strong><br>
-                    Version: ${window.DevToolsTerminator.version}<br>
-                    Check Interval: ${config.checkInterval}ms<br>
-                    Window Size Check: ${config.enableWindowSizeCheck ? 'Enabled' : 'Disabled'}<br>
-                    Keyboard Block: ${config.enableKeyboardBlock ? 'Enabled' : 'Disabled'}<br>
-                    Terminated: ${window.DevToolsTerminator.isTerminated() ? 'Yes' : 'No'}
-                `;
+                var config = window.DevToolsTerminator.config;
+                status.innerHTML = 
+                    '<strong>STATUS: DevTools Terminator is Active</strong><br>' +
+                    'Version: ' + window.DevToolsTerminator.version + '<br>' +
+                    'Check Interval: ' + config.checkInterval + 'ms<br>' +
+                    'Window Size Check: ' + (config.enableWindowSizeCheck ? 'Enabled' : 'Disabled') + '<br>' +
+                    'Keyboard Block: ' + (config.enableKeyboardBlock ? 'Enabled' : 'Disabled') + '<br>' +
+                    'Terminated: ' + (window.DevToolsTerminator.isTerminated() ? 'Yes' : 'No');
             } else {
                 status.innerHTML = '<strong>ERROR: DevTools Terminator not found</strong>';
             }
