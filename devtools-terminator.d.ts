@@ -74,8 +74,7 @@ declare interface DevToolsTerminatorAPI {
 }
 
 /**
- * Global configuration object
- * Set this before including the devtools-terminator.js script
+ * Global Window augmentation
  */
 declare interface Window {
     /**
@@ -86,7 +85,7 @@ declare interface Window {
 
     /**
      * DevTools Terminator Public API
-     * Available after the script loads
+     * Available after the script loads (undefined before)
      */
-    DevToolsTerminator: DevToolsTerminatorAPI;
+    DevToolsTerminator?: DevToolsTerminatorAPI;
 }
