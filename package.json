@@ -1,0 +1,37 @@
+{
+  "name": "devtools-terminator",
+  "version": "1.0.0",
+  "description": "A powerful JavaScript library that detects and terminates sessions when browser Developer Tools are opened",
+  "main": "devtools-terminator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git"
+  },
+  "keywords": [
+    "devtools",
+    "security",
+    "protection",
+    "anti-debug",
+    "console",
+    "inspector",
+    "session",
+    "termination",
+    "browser",
+    "javascript"
+  ],
+  "author": "Mohammad Faiz <mohdfaiz9695@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/issues"
+  },
+  "homepage": "https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator#readme",
+  "files": [
+    "devtools-terminator.js",
+    "terminated.html",
+    "README.md",
+    "LICENSE"
+  ]
+}
