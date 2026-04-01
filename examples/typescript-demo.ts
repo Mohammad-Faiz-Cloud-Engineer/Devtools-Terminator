@@ -74,8 +74,14 @@ window.DEVTOOLS_TERMINATOR_CONFIG = customConfig;
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', () => {
-    // Access the API with full type safety
-    const api: DevToolsTerminatorAPI = window.DevToolsTerminator;
+    // Access the API with full type safety (now properly optional)
+    const api: DevToolsTerminatorAPI | undefined = window.DevToolsTerminator;
+    
+    // Safe access pattern - check if loaded first
+    if (!api) {
+        console.warn('DevTools Terminator not loaded yet');
+        return;
+    }
     
     // Get version (readonly property)
     const version: string = api.version;
@@ -337,7 +343,7 @@ function isDevToolsTerminatorLoaded(): boolean {
 // Safe API access with type guard
 function safelyAccessAPI(): DevToolsTerminatorAPI | null {
     if (isDevToolsTerminatorLoaded()) {
-        return window.DevToolsTerminator;
+        return window.DevToolsTerminator!; // Non-null assertion safe here due to type guard
     }
     console.warn('DevTools Terminator is not loaded');
     return null;
