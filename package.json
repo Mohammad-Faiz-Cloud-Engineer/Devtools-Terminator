@@ -30,7 +30,8 @@
   "homepage": "https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator#readme",
   "files": [
     "devtools-terminator.js",
-    "terminated.html",
+    "examples/",
+    "assets/",
     "README.md",
     "LICENSE"
   ]
