@@ -9,13 +9,11 @@ This document provides comprehensive testing procedures for DevTools Terminator.
 Start a local server (required for proper testing):
 
 ```bash
-# Option 1: Python
-python -m http.server 8000
-# or
+# Option 1: Python 3 (recommended)
 python3 -m http.server 8000
 
-# Option 2: Node.js
-npx serve .
+# Option 2: Python 2
+python -m SimpleHTTPServer 8000
 
 # Option 3: PHP
 php -S localhost:8000
@@ -312,29 +310,14 @@ Test on each browser:
 
 ## Automated Testing (Future)
 
-### Recommended Test Framework
+Automated testing can be added using browser automation tools. For now, manual testing is recommended as the library is simple and focused.
 
-```bash
-npm install --save-dev jest puppeteer
-```
+If you want to add automated tests in the future, consider:
+- Puppeteer for browser automation
+- Selenium for cross-browser testing
+- Playwright for modern browser testing
 
-### Sample Test Structure
-
-```javascript
-describe('DevTools Terminator', () => {
-    test('should redirect on F12 press', async () => {
-        // Test implementation
-    });
-
-    test('should clear localStorage', async () => {
-        // Test implementation
-    });
-
-    test('should block keyboard shortcuts', async () => {
-        // Test implementation
-    });
-});
-```
+These would require Node.js and additional setup.
 
 ## Regression Testing Checklist
 
