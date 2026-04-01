@@ -44,13 +44,18 @@ Feature suggestions are tracked as GitHub issues. When suggesting a feature:
 ```bash
 # Clone your fork
 git clone https://github.com/your-username/Devtools-Terminator.git
-cd Devtools-Terminator
+cd Devtools-Terminator/devtools-terminator
 
 # Create a branch
 git checkout -b feature/my-feature
 
+# Start a local server for testing
+npm run serve
+# or
+python -m http.server 8000
+
 # Make changes and test
-# Open demo.html in different browsers
+# Open http://localhost:8000/examples/demo.html
 
 # Commit and push
 git add .
@@ -90,12 +95,29 @@ function checkDevTools(){
 
 Before submitting a pull request, test your changes:
 
-1. Open `demo.html` in Chrome, Firefox, Safari, and Edge
+1. Open `examples/demo.html` in Chrome, Firefox, Safari, and Edge
 2. Test on both desktop and mobile browsers
 3. Verify DevTools detection works correctly
 4. Check that the termination page displays properly
 5. Ensure no console errors appear
 6. Test with different configuration options
+7. Run the quality checks locally:
+
+```bash
+# Check for debug statements
+grep -r "console.log" --include="*.js" --exclude-dir="examples" .
+
+# Check for TODOs
+grep -r "TODO\|FIXME" --include="*.js" .
+
+# Validate JSON
+cat package.json | jq .
+
+# Check file size
+ls -lh devtools-terminator.js
+```
+
+See [TESTING.md](../TESTING.md) for comprehensive testing procedures.
 
 ## Browser Support
 
