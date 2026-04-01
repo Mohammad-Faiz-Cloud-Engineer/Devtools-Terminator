@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete session cleanup (localStorage, sessionStorage, cookies, service workers, caches)
 - Custom termination handler support
 - Zero external dependencies
-- Cross-browser compatibility
+- Cross-browser compatibility (Firefox, Safari, Edge, Opera, Chromium-based browsers)
+- Limited Chrome browser support (see Browser Compatibility section)
 - Comprehensive documentation
 - Demo page with examples
 - MIT License
