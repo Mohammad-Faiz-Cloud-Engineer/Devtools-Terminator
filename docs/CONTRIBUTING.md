@@ -50,9 +50,11 @@ cd Devtools-Terminator/devtools-terminator
 git checkout -b feature/my-feature
 
 # Start a local server for testing
-npm run serve
+python3 -m http.server 8000
 # or
-python -m http.server 8000
+python -m SimpleHTTPServer 8000
+# or
+php -S localhost:8000
 
 # Make changes and test
 # Open http://localhost:8000/examples/demo.html
@@ -104,17 +106,17 @@ Before submitting a pull request, test your changes:
 7. Run the quality checks locally:
 
 ```bash
-# Check for debug statements
+# Check for debug statements (Linux/Mac)
 grep -r "console.log" --include="*.js" --exclude-dir="examples" .
 
-# Check for TODOs
+# Check for TODOs (Linux/Mac)
 grep -r "TODO\|FIXME" --include="*.js" .
 
-# Validate JSON
-cat package.json | jq .
-
-# Check file size
+# Check file size (Linux/Mac)
 ls -lh devtools-terminator.js
+
+# Check file size (Windows)
+dir devtools-terminator.js
 ```
 
 See [TESTING.md](../TESTING.md) for comprehensive testing procedures.
