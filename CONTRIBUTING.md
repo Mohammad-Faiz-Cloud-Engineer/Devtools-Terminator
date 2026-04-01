@@ -153,7 +153,7 @@ Contributions that would be particularly helpful:
 
 ## Questions?
 
-Open an issue with the "question" label or email mohdfaiz9695@gmail.com.
+Open an issue with the "question" label on GitHub.
 
 ## License
 
