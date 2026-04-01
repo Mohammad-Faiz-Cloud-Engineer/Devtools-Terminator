@@ -31,21 +31,21 @@
     'use strict';
     
     // ==================== CONFIGURATION ====================
-    const config = window.DEVTOOLS_TERMINATOR_CONFIG || {};
+    var config = window.DEVTOOLS_TERMINATOR_CONFIG || {};
     
     // Default to terminated.html in same directory, not examples/
-    const TERMINATION_URL = config.terminationUrl || 'terminated.html';
-    const CHECK_INTERVAL = config.checkInterval || 100;
-    const ENABLE_WINDOW_SIZE_CHECK = config.enableWindowSizeCheck !== false;
-    const ENABLE_KEYBOARD_BLOCK = config.enableKeyboardBlock !== false;
-    const DISABLE_ON_MOBILE = config.disableOnMobile || false;
-    const CUSTOM_TERMINATE_HANDLER = config.onTerminate || null;
+    var TERMINATION_URL = config.terminationUrl || 'terminated.html';
+    var CHECK_INTERVAL = config.checkInterval || 100;
+    var ENABLE_WINDOW_SIZE_CHECK = config.enableWindowSizeCheck !== false;
+    var ENABLE_KEYBOARD_BLOCK = config.enableKeyboardBlock !== false;
+    var DISABLE_ON_MOBILE = config.disableOnMobile || false;
+    var CUSTOM_TERMINATE_HANDLER = config.onTerminate || null;
     
     // ==================== STATE ====================
-    let _terminated = false;
-    let _devtoolsOpen = false;
-    let _monitoringInterval = null;
-    let _initialized = false;
+    var _terminated = false;
+    var _devtoolsOpen = false;
+    var _monitoringInterval = null;
+    var _initialized = false;
     
     // ==================== CORE FUNCTIONS ====================
     
@@ -53,21 +53,25 @@
      * Clear all cookies properly
      */
     function clearAllCookies() {
-        const cookies = document.cookie.split(';');
-        const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
-        
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i];
-            const eqPos = cookie.indexOf('=');
-            const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+        try {
+            var cookies = document.cookie.split(';');
+            var pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
             
-            // Skip empty cookie names
-            if (!name) continue;
-            
-            // Try multiple combinations to ensure deletion
-            document.cookie = name + '=;expires=' + pastDate + ';path=/';
-            document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
-            document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf('=');
+                var name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+                
+                // Skip empty cookie names
+                if (!name) continue;
+                
+                // Try multiple combinations to ensure deletion
+                document.cookie = name + '=;expires=' + pastDate + ';path=/';
+                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
+                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+            }
+        } catch (e) {
+            // Cookie clearing failed, continue anyway
         }
     }
     
@@ -115,7 +119,7 @@
      * Detection using devtools-detector pattern
      * When DevTools console is open, logging an object triggers property getters
      */
-    const element = new Image();
+    var element = new Image();
     Object.defineProperty(element, 'id', {
         get: function() {
             _devtoolsOpen = true;
@@ -168,8 +172,8 @@
         }
         
         // Only check on desktop where this method is reliable
-        const widthThreshold = window.outerWidth - window.innerWidth > 160;
-        const heightThreshold = window.outerHeight - window.innerHeight > 160;
+        var widthThreshold = window.outerWidth - window.innerWidth > 160;
+        var heightThreshold = window.outerHeight - window.innerHeight > 160;
         return widthThreshold || heightThreshold;
     }
     
@@ -182,7 +186,7 @@
         if (!ENABLE_KEYBOARD_BLOCK) return;
         
         document.addEventListener('keydown', function(e) {
-            let shouldTerminate = false;
+            var shouldTerminate = false;
             
             // F12
             if (e.key === 'F12') {
@@ -264,7 +268,7 @@
      */
     function disableTextSelection() {
         document.addEventListener('selectstart', function(e) {
-            const target = e.target;
+            var target = e.target;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
                 return true;
             }
