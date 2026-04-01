@@ -60,6 +60,9 @@
             const eqPos = cookie.indexOf('=');
             const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
             
+            // Skip empty cookie names
+            if (!name) continue;
+            
             // Try multiple combinations to ensure deletion
             document.cookie = name + '=;expires=' + pastDate + ';path=/';
             document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
