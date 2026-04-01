@@ -21,6 +21,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive documentation
 - Demo page with examples
 - MIT License
+- TypeScript definitions (.d.ts file)
+- Testing guide (TESTING.md)
+- Build instructions (BUILD.md)
+- Security policy (SECURITY.md)
+- EditorConfig for consistent coding styles
+- NPM package configuration
+- GitHub Actions workflow for quality checks
+
+### Fixed
+
+- Default termination URL changed from `examples/terminated.html` to `terminated.html` for better path resolution
+- All documentation examples updated to use relative paths instead of absolute paths
+- Path resolution issues in demo.html
 
 ### Detection Methods
 
@@ -52,24 +65,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - README.md with complete usage guide
 - QUICK_START.md for fast setup
-- COMPARISON.md showing code comparison with Rox AI platform
+- PROJECT_INFO.md with technical details
 - CONTRIBUTING.md with contribution guidelines
+- TESTING.md with comprehensive test procedures
+- BUILD.md with build and release instructions
+- SECURITY.md with security considerations and policy
 - Demo page with interactive examples
 
 ## [Unreleased]
 
 ### Planned Features
 
-- NPM package publication
-- CDN hosting
-- Minified version
-- TypeScript definitions
-- Unit test suite
-- CI/CD pipeline
+- Minified version (devtools-terminator.min.js)
+- Unit test suite with Jest or Mocha
+- Automated browser testing with Puppeteer
 - Additional configuration options
 - Whitelist mode for development environments
 - Event hooks for detection stages
 - Better documentation with more examples
+- NPM package publication
+- CDN hosting on jsDelivr and unpkg
 
 ### Under Consideration
 
