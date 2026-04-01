@@ -58,7 +58,7 @@
         for (let i = 0; i < cookies.length; i++) {
             const cookie = cookies[i];
             const eqPos = cookie.indexOf('=');
-            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+            const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
             
             // Try multiple combinations to ensure deletion
             document.cookie = name + '=;expires=' + pastDate + ';path=/';
@@ -136,7 +136,7 @@
      */
     function isIOSDevice() {
         return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+               (navigator.userAgentData && navigator.userAgentData.platform === 'macOS' && navigator.maxTouchPoints > 1);
     }
     
     /**
@@ -181,47 +181,47 @@
             let shouldTerminate = false;
             
             // F12
-            if (e.key === 'F12' || e.keyCode === 123) {
+            if (e.key === 'F12') {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+I (Dev Tools)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+J (Console)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+C (Inspect Element)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c' || e.keyCode === 67)) {
+            if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+U (View Source)
-            if (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
+            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+S (Save Page)
-            if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.keyCode === 83)) {
+            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
                 e.preventDefault();
                 return false;
             }
             // Cmd+Option+I (Mac Dev Tools)
-            if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i' || e.keyCode === 73)) {
+            if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+J (Mac Console)
-            if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j' || e.keyCode === 74)) {
+            if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+U (Mac View Source)
-            if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u' || e.keyCode === 85)) {
+            if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
