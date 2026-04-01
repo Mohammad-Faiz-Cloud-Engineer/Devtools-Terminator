@@ -15,13 +15,13 @@ This isn't security theater. The code is battle-tested in production on the Rox 
 
 ## Features
 
-- **Triple detection system**: Console logging, window size comparison, and keyboard shortcut interception
-- **Fast detection**: Checks every 100ms for near-instant response
-- **Mobile-aware**: Smart detection that avoids false positives on phones and tablets
-- **Complete cleanup**: Clears localStorage, sessionStorage, cookies, service workers, and caches
-- **Zero dependencies**: Pure vanilla JavaScript, under 5KB
-- **Configurable**: Customize behavior without editing the source code
-- **Cross-browser**: Works on Chrome, Firefox, Safari, Edge, and Opera
+- Triple detection system: Console logging, window size comparison, and keyboard shortcut interception
+- Fast detection with 100ms polling interval for near-instant response
+- Mobile-aware with smart detection that avoids false positives on phones and tablets
+- Complete cleanup: Clears localStorage, sessionStorage, cookies, service workers, and caches
+- Zero dependencies: Pure vanilla JavaScript, under 5KB when minified
+- Configurable behavior without editing the source code
+- Cross-browser support for Firefox, Safari, Edge, Opera, and Chromium-based browsers
 
 ## Installation
 
@@ -44,6 +44,13 @@ cp Devtools-Terminator/devtools-terminator/devtools-terminator.d.ts your-project
 ```
 
 ### Direct Download
+
+Clone the repository and copy the files you need:
+
+```bash
+git clone https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator.git
+cd Devtools-Terminator
+```
 
 ## Quick Start
 
@@ -74,11 +81,7 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
     terminationUrl: 'terminated.html',  // Relative to current page
     checkInterval: 100,
     enableWindowSizeCheck: true,
-    enableKeyboardBlock: true,
-    disableOnMobile: false,
-    onTerminate: function() {
-        // Custom termination logic
-    }
+    enableKeyboardBlock: true
 };
 </script>
 <script src="devtools-terminator.js"></script>
@@ -160,14 +163,39 @@ The termination page itself also runs cleanup code and prevents navigation back 
 
 ## Browser Compatibility
 
-Tested and working on:
+### Fully Supported Browsers
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-- Opera 76+
-- Mobile browsers (with smart detection)
+- **Firefox** 88+ (All platforms) - Recommended
+- **Safari** 14+ (macOS, iOS) - Recommended
+- **Microsoft Edge** 90+ (All platforms) - Recommended
+- **Opera** 76+ (All platforms)
+- **Chromium-based browsers** (Brave, Vivaldi, Arc, etc.) - Fully supported
+- **Mobile browsers** (iOS Safari, Chrome Mobile on Android) - Fully supported
+
+### Chrome Browser - Limited Support
+
+**Google Chrome desktop browser has conditional support:**
+
+| Platform | Support | Details |
+|----------|---------|---------|
+| Windows | Conditional | Blocked on large monitors (>1920px width). Works on smaller displays. |
+| Linux | Not Supported | Chrome DevTools too accessible on Linux. |
+| macOS | Conditional | Blocked on large monitors (>1920px width). Works on smaller displays. |
+| Android | Supported | Chrome Mobile works perfectly. |
+
+**Why Chrome Desktop is Limited:**
+
+Chrome's DevTools are highly optimized for viewing client-side code, making inspection extremely easy:
+- Source code viewing is more accessible than other browsers
+- Developer features are easier for end users to discover
+- Code formatting and debugging tools are superior
+- This library aims to deter casual inspection, which Chrome makes too simple
+
+**Recommendation:** Use Firefox, Safari, Edge, or Chromium-based browsers (Brave, Vivaldi, Arc) for full compatibility.
+
+**Important:** Chromium-based browsers (built on Chromium engine) ARE fully supported. Only the official Google Chrome browser has these limitations.
+
+See [BROWSER_COMPATIBILITY.md](BROWSER_COMPATIBILITY.md) for more browser information.
 
 ## Performance
 
@@ -305,11 +333,14 @@ devtools-terminator/
 ├── TESTING.md                   # Testing guide
 ├── BUILD.md                     # Build instructions (optional minification)
 ├── SECURITY.md                  # Security policy
+├── BROWSER_COMPATIBILITY.md     # Detailed browser support guide
 ├── NO_NPM_SETUP.md             # Guide for using without NPM
 └── README.md                    # This file
 ```
 
 **Note**: No NPM setup required! See [NO_NPM_SETUP.md](NO_NPM_SETUP.md) for details.
+
+**Browser Support**: See [BROWSER_COMPATIBILITY.md](BROWSER_COMPATIBILITY.md) for more information.
 
 ## Disclaimer
 
