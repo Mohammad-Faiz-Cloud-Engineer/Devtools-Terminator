@@ -247,7 +247,11 @@
     <!-- <script src="../devtools-terminator.js"></script> -->
     
     <script>
-        // Mock API for demo purposes (so we can interact without triggering termination)
+        // ============================================================
+        // MOCK API FOR DEMO PURPOSES ONLY
+        // This allows interaction without triggering actual termination
+        // In production, the real library would be loaded above
+        // ============================================================
         if (!window.DevToolsTerminator) {
             window.DevToolsTerminator = {
                 version: '1.0.0',
