@@ -14,6 +14,7 @@ build/
 *.min.js
 *.min.css
 *.map
+*.tsbuildinfo
 
 # IDE (keep .vscode out of repo)
 .vscode/
@@ -41,11 +42,17 @@ coverage/
 test-results/
 junit.xml
 
+# Linting
+.eslintcache
+
 # Environment
 *.log
 .env
 .env.local
 .env.*.local
+.env.test
+.env.production
+.env.development
 
 # Misc
 *.bak
