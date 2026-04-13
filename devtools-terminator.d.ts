@@ -86,6 +86,7 @@ declare interface Window {
     /**
      * DevTools Terminator Public API
      * Available after the script loads (undefined before)
+     * Always check for existence before accessing
      */
     DevToolsTerminator?: DevToolsTerminatorAPI;
 }
