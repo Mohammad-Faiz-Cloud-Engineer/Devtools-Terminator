@@ -2,7 +2,7 @@
 
 A lightweight JavaScript library that detects when browser Developer Tools are opened and terminates the user session. Zero dependencies, under 5KB, production-ready.
 
-**Version:** 1.0.0  
+**Version:** 2.0.0  
 **Author:** Mohammad Faiz  
 **License:** MIT  
 **Repository:** https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator
@@ -710,7 +710,7 @@ The library exposes a global object for programmatic control:
 
 ```javascript
 // Check version
-console.log(window.DevToolsTerminator.version); // "1.0.0"
+console.log(window.DevToolsTerminator.version); // "2.0.0"
 
 // Check if session has been terminated
 console.log(window.DevToolsTerminator.isTerminated()); // false
@@ -1040,6 +1040,23 @@ Before submitting a pull request:
 ---
 
 ## Changelog
+
+### [2.0.0] - 2026-04-13
+
+**Changed:**
+- Upgraded to version 2.0.0 with comprehensive security and code quality improvements
+- Enhanced URL validation with path traversal protection
+- Improved error handling with descriptive comments
+- Refactored code for better maintainability
+- Frozen public API config object to prevent external modifications
+
+**Fixed:**
+- Security vulnerabilities in URL validation
+- Code quality issues throughout codebase
+- Memory leak protection in terminated.html
+- Browser compatibility improvements
+
+See [CHANGELOG.md](docs/CHANGELOG.md) for complete details.
 
 ### [1.0.0] - 2026-04-01
 
