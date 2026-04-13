@@ -163,6 +163,9 @@ class DevToolsConfigBuilder {
         if (interval < 50) {
             throw new Error('Check interval must be at least 50ms');
         }
+        if (interval > 5000) {
+            throw new Error('Check interval must be at most 5000ms');
+        }
         this.config.checkInterval = interval;
         return this;
     }
