@@ -60,7 +60,7 @@ const customConfig: DevToolsTerminatorConfig = {
                 timestamp: Date.now(),
                 userAgent: navigator.userAgent
             })
-        }).catch((error: Error) => {
+        }).catch((error: unknown) => {
             console.error('Failed to log security event:', error);
         });
     }
@@ -74,10 +74,10 @@ window.DEVTOOLS_TERMINATOR_CONFIG = customConfig;
 
 // Wait for DOM to load
 document.addEventListener('DOMContentLoaded', () => {
-    // Access the API with full type safety (now properly optional)
-    const api: DevToolsTerminatorAPI | undefined = window.DevToolsTerminator;
+    // Access the API with full type safety
+    const api: DevToolsTerminatorAPI = window.DevToolsTerminator;
     
-    // Safe access pattern - check if loaded first
+    // API is always available after script loads
     if (!api) {
         console.warn('DevTools Terminator not loaded yet');
         return;
