@@ -1,6 +1,6 @@
 {
   "name": "devtools-terminator",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A powerful JavaScript library that detects and terminates sessions when browser Developer Tools are opened",
   "main": "devtools-terminator.js",
   "types": "devtools-terminator.d.ts",
