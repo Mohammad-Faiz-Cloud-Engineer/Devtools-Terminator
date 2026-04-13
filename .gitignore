@@ -11,12 +11,13 @@ pnpm-lock.yaml
 # Build outputs
 dist/
 build/
-*.min.js
-*.min.css
 *.map
 *.tsbuildinfo
 
-# IDE (keep .vscode out of repo)
+# Note: *.min.js is NOT ignored to allow distribution of minified files
+# If you want to ignore minified files, add them explicitly
+
+# IDE
 .vscode/
 .idea/
 *.swp
