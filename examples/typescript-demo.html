@@ -269,6 +269,8 @@
         
         function showVersion() {
             var output = document.getElementById('output');
+            if (!output) return;
+            
             var api = window.DevToolsTerminator;
             
             output.textContent = 
@@ -280,6 +282,8 @@
         
         function showConfig() {
             var output = document.getElementById('output');
+            if (!output) return;
+            
             var api = window.DevToolsTerminator;
             
             output.textContent = 
@@ -292,6 +296,8 @@
         
         function checkTerminated() {
             var output = document.getElementById('output');
+            if (!output) return;
+            
             var api = window.DevToolsTerminator;
             var isTerminated = api.isTerminated();
             
@@ -306,6 +312,8 @@
         
         function showAllInfo() {
             var output = document.getElementById('output');
+            if (!output) return;
+            
             var api = window.DevToolsTerminator;
             
             output.textContent = 
