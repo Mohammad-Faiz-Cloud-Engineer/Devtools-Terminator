@@ -228,6 +228,8 @@ window.DEVTOOLS_TERMINATOR_CONFIG = {
     <script>
         function testProtection() {
             var status = document.getElementById('status');
+            if (!status) return;
+            
             status.style.display = 'block';
             
             if (window.DevToolsTerminator) {
