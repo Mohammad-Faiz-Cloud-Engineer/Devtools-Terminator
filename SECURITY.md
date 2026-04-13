@@ -4,7 +4,8 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
+| 2.0.x   | :white_check_mark: |
+| 1.0.x   | :x: (Upgrade to 2.0.x) |
 
 ## Security Considerations
 
@@ -166,4 +167,4 @@ This security policy applies to DevTools Terminator licensed under MIT License.
 
 ---
 
-**Last Updated**: April 1, 2026
+**Last Updated**: April 13, 2026
