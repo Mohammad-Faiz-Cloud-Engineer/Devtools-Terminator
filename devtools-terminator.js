@@ -30,16 +30,28 @@
 (function() {
     'use strict';
     
+    // ==================== ENVIRONMENT CHECK ====================
+    if (typeof window === 'undefined') {
+        return; // Exit safely in SSR environments (Node.js, Next.js, etc.)
+    }
+
+    // ==================== CONSTANTS ====================
+    var DEFAULT_TERMINATION_URL = 'terminated.html';
+    var DEFAULT_CHECK_INTERVAL = 100;
+    var WINDOW_SIZE_THRESHOLD = 160;
+    var MOBILE_WIDTH_THRESHOLD = 1024;
+    var PAST_DATE_STRING = 'Thu, 01 Jan 1970 00:00:00 UTC';
+    
     // ==================== CONFIGURATION ====================
     var config = window.DEVTOOLS_TERMINATOR_CONFIG || {};
     
     // Default to terminated.html in same directory, not examples/
-    var TERMINATION_URL = config.terminationUrl || 'terminated.html';
-    var CHECK_INTERVAL = config.checkInterval || 100;
+    var TERMINATION_URL = config.terminationUrl || DEFAULT_TERMINATION_URL;
+    var CHECK_INTERVAL = typeof config.checkInterval === 'number' ? config.checkInterval : DEFAULT_CHECK_INTERVAL;
     var ENABLE_WINDOW_SIZE_CHECK = config.enableWindowSizeCheck !== false;
     var ENABLE_KEYBOARD_BLOCK = config.enableKeyboardBlock !== false;
-    var DISABLE_ON_MOBILE = config.disableOnMobile || false;
-    var CUSTOM_TERMINATE_HANDLER = config.onTerminate || null;
+    var DISABLE_ON_MOBILE = Boolean(config.disableOnMobile);
+    var CUSTOM_TERMINATE_HANDLER = typeof config.onTerminate === 'function' ? config.onTerminate : null;
     
     // ==================== STATE ====================
     var _terminated = false;
@@ -55,7 +67,6 @@
     function clearAllCookies() {
         try {
             var cookies = document.cookie.split(';');
-            var pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
             
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = cookies[i];
@@ -66,12 +77,12 @@
                 if (!name) continue;
                 
                 // Try multiple combinations to ensure deletion
-                document.cookie = name + '=;expires=' + pastDate + ';path=/';
-                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
-                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+                document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/';
+                document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/;domain=' + window.location.hostname;
+                document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/;domain=.' + window.location.hostname;
             }
-        } catch (e) {
-            // Cookie clearing failed, continue anyway
+        } catch (error) {
+            console.error('DevTools Terminator: Cookie clearing failed', error);
         }
     }
     
@@ -88,16 +99,16 @@
                 clearInterval(_monitoringInterval);
                 _monitoringInterval = null;
             }
-        } catch (e) {
-            // Interval clearing failed, continue anyway
+        } catch (error) {
+            console.error('DevTools Terminator: Interval clearing failed', error);
         }
         
         // Execute custom handler if provided (but don't let it block default behavior)
-        if (typeof CUSTOM_TERMINATE_HANDLER === 'function') {
+        if (CUSTOM_TERMINATE_HANDLER) {
             try {
                 CUSTOM_TERMINATE_HANDLER();
-            } catch (e) {
-                // Custom handler failed, continue with default behavior
+            } catch (error) {
+                console.error('DevTools Terminator: Custom termination handler failed', error);
             }
         }
         
@@ -109,8 +120,8 @@
             
             // Clear all cookies properly
             clearAllCookies();
-        } catch (e) {
-            // Storage clearing failed, continue anyway
+        } catch (error) {
+            console.error('DevTools Terminator: Storage clearing failed', error);
         }
         
         // Redirect to termination page
@@ -149,7 +160,8 @@
      * iOS has different viewport behavior that causes false positives
      */
     function isIOSDevice() {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+        var userAgent = navigator.userAgent;
+        return /iPad|iPhone|iPod/.test(userAgent) || 
                (navigator.userAgentData && navigator.userAgentData.platform === 'macOS' && navigator.maxTouchPoints > 1);
     }
     
@@ -157,8 +169,9 @@
      * Detect if running on mobile device
      */
     function isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-               (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+        var userAgent = navigator.userAgent;
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ||
+               (navigator.maxTouchPoints > 1 && window.innerWidth < MOBILE_WIDTH_THRESHOLD);
     }
     
     /**
@@ -178,8 +191,8 @@
         }
         
         // Only check on desktop where this method is reliable
-        var widthThreshold = window.outerWidth - window.innerWidth > 160;
-        var heightThreshold = window.outerHeight - window.innerHeight > 160;
+        var widthThreshold = window.outerWidth - window.innerWidth > WINDOW_SIZE_THRESHOLD;
+        var heightThreshold = window.outerHeight - window.innerHeight > WINDOW_SIZE_THRESHOLD;
         return widthThreshold || heightThreshold;
     }
     
@@ -191,52 +204,52 @@
     function setupKeyboardProtection() {
         if (!ENABLE_KEYBOARD_BLOCK) return;
         
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function(event) {
             var shouldTerminate = false;
             
             // F12
-            if (e.key === 'F12') {
-                e.preventDefault();
+            if (event.key === 'F12') {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+I (Dev Tools)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
-                e.preventDefault();
+            if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+J (Console)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
-                e.preventDefault();
+            if (event.ctrlKey && event.shiftKey && (event.key === 'J' || event.key === 'j')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+C (Inspect Element)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
-                e.preventDefault();
+            if (event.ctrlKey && event.shiftKey && (event.key === 'C' || event.key === 'c')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+U (View Source)
-            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
+            if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+S (Save Page)
-            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
-                e.preventDefault();
+            if (event.ctrlKey && (event.key === 'S' || event.key === 's')) {
+                event.preventDefault();
                 return false;
             }
             // Cmd+Option+I (Mac Dev Tools)
-            if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
-                e.preventDefault();
+            if (event.metaKey && event.altKey && (event.key === 'I' || event.key === 'i')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+J (Mac Console)
-            if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
-                e.preventDefault();
+            if (event.metaKey && event.altKey && (event.key === 'J' || event.key === 'j')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+U (Mac View Source)
-            if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
+            if (event.metaKey && event.altKey && (event.key === 'U' || event.key === 'u')) {
+                event.preventDefault();
                 shouldTerminate = true;
             }
             
@@ -253,8 +266,8 @@
      * Disable right-click context menu
      */
     function disableContextMenu() {
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
             return false;
         });
     }
@@ -263,8 +276,8 @@
      * Disable drag
      */
     function disableDrag() {
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
+        document.addEventListener('dragstart', function(event) {
+            event.preventDefault();
             return false;
         });
     }
@@ -273,13 +286,13 @@
      * Disable text selection on sensitive elements
      */
     function disableTextSelection() {
-        document.addEventListener('selectstart', function(e) {
-            var target = e.target;
+        document.addEventListener('selectstart', function(event) {
+            var target = event.target;
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
                 return true;
             }
-            if (target && target.closest && target.closest('pre, code, .protected')) {
-                e.preventDefault();
+            if (target && typeof target.closest === 'function' && target.closest('pre, code, .protected')) {
+                event.preventDefault();
                 return false;
             }
         });
