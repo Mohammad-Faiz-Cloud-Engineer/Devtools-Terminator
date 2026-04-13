@@ -129,6 +129,8 @@
         (function() {
             'use strict';
             
+            var PAST_DATE_STRING = 'Thu, 01 Jan 1970 00:00:00 UTC';
+            
             // Clear everything on this page too
             try {
                 localStorage.clear();
@@ -136,7 +138,6 @@
                 
                 // Clear cookies properly with past date
                 var cookies = document.cookie.split(';');
-                var pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
                 
                 for (var i = 0; i < cookies.length; i++) {
                     var cookie = cookies[i];
@@ -147,29 +148,39 @@
                     if (!name) continue;
                     
                     // Try multiple combinations to ensure deletion
-                    document.cookie = name + '=;expires=' + pastDate + ';path=/';
-                    document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
-                    document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
+                    document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/';
+                    document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/;domain=' + window.location.hostname;
+                    document.cookie = name + '=;expires=' + PAST_DATE_STRING + ';path=/;domain=.' + window.location.hostname;
                 }
                 
                 // Unregister service workers with error handling
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         registrations.forEach(function(registration) {
-                            registration.unregister().catch(function() {});
+                            registration.unregister().catch(function(error) {
+                                console.error('DevTools Terminator: Service worker unregistration failed', error);
+                            });
                         });
-                    }).catch(function() {});
+                    }).catch(function(error) {
+                        console.error('DevTools Terminator: Service worker listing failed', error);
+                    });
                 }
                 
                 // Clear caches with error handling
                 if ('caches' in window) {
                     caches.keys().then(function(names) {
                         names.forEach(function(name) {
-                            caches.delete(name).catch(function() {});
+                            caches.delete(name).catch(function(error) {
+                                console.error('DevTools Terminator: Cache deletion failed', error);
+                            });
                         });
-                    }).catch(function() {});
+                    }).catch(function(error) {
+                        console.error('DevTools Terminator: Cache listing failed', error);
+                    });
                 }
-            } catch (e) {}
+            } catch (error) {
+                console.error('DevTools Terminator: Storage clearing failed', error);
+            }
             
             // Prevent navigation back
             history.pushState(null, '', window.location.href);
@@ -178,17 +189,17 @@
             });
             
             // Disable all interactions
-            document.addEventListener('contextmenu', function(e) { 
-                e.preventDefault(); 
+            document.addEventListener('contextmenu', function(event) { 
+                event.preventDefault(); 
                 return false;
             });
             
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'F12' ||
-                    (e.ctrlKey && e.shiftKey) ||
-                    (e.ctrlKey && (e.key === 'u' || e.key === 'U')) ||
-                    (e.ctrlKey && (e.key === 's' || e.key === 'S'))) {
-                    e.preventDefault();
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'F12' ||
+                    (event.ctrlKey && event.shiftKey) ||
+                    (event.ctrlKey && (event.key === 'u' || event.key === 'U')) ||
+                    (event.ctrlKey && (event.key === 's' || event.key === 'S'))) {
+                    event.preventDefault();
                     return false;
                 }
             });
