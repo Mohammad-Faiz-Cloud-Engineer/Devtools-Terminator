@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript Demo - DevTools Terminator</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #1a202c;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #718096;
+            margin-bottom: 32px;
+        }
+        
+        .info-box {
+            background: #e6f7ff;
+            border: 2px solid #1890ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .info-box h2 {
+            color: #0050b3;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        
+        .info-box p {
+            color: #0050b3;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .code-section {
+            margin-bottom: 32px;
+        }
+        
+        .code-section h3 {
+            font-size: 18px;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-bottom: 16px;
+        }
+        
+        .code-block .comment {
+            color: #68d391;
+        }
+        
+        .code-block .keyword {
+            color: #f687b3;
+        }
+        
+        .code-block .string {
+            color: #fbd38d;
+        }
+        
+        .code-block .function {
+            color: #63b3ed;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .button:hover {
+            background: #5568d3;
+        }
+        
+        .button.secondary {
+            background: #48bb78;
+        }
+        
+        .button.secondary:hover {
+            background: #38a169;
+        }
+        
+        .output {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #2d3748;
+            min-height: 100px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .file-list {
+            background: #fef5e7;
+            border: 2px solid #f39c12;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+        
+        .file-list h3 {
+            color: #d68910;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .file-list ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .file-list li {
+            padding: 6px 0;
+            color: #7d6608;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .file-list li::before {
+            content: '• ';
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TypeScript Demo</h1>
+        <p class="subtitle">DevTools Terminator with Full Type Safety</p>
+        
+        <div class="info-box">
+            <h2>TypeScript Support</h2>
+            <p>This library includes TypeScript definitions (.d.ts) for full type safety and IntelliSense support.</p>
+            <p>All configuration options, API methods, and return types are fully typed.</p>
+        </div>
+        
+        <div class="code-section">
+            <h3>Example 1: Basic Configuration</h3>
+            <div class="code-block"><span class="comment">// TypeScript provides autocomplete and type checking</span>
+<span class="keyword">window</span>.<span class="keyword">DEVTOOLS_TERMINATOR_CONFIG</span> = {
+    <span class="keyword">terminationUrl</span>: <span class="string">'terminated.html'</span>,
+    <span class="keyword">checkInterval</span>: <span class="string">100</span>,
+    <span class="keyword">enableWindowSizeCheck</span>: <span class="keyword">true</span>,
+    <span class="keyword">enableKeyboardBlock</span>: <span class="keyword">true</span>
+};</div>
+        </div>
+        
+        <div class="code-section">
+            <h3>Example 2: Custom Handler with Types</h3>
+            <div class="code-block"><span class="keyword">const</span> config: <span class="keyword">DevToolsTerminatorConfig</span> = {
+    <span class="keyword">onTerminate</span>: (): <span class="keyword">void</span> => {
+        <span class="comment">// Type-safe custom logic</span>
+        <span class="function">console</span>.<span class="function">log</span>(<span class="string">'DevTools detected!'</span>);
+    }
+};</div>
+        </div>
+        
+        <div class="code-section">
+            <h3>Example 3: Using the Public API</h3>
+            <div class="code-block"><span class="keyword">const</span> api: <span class="keyword">DevToolsTerminatorAPI</span> = <span class="keyword">window</span>.<span class="keyword">DevToolsTerminator</span>;
+
+<span class="comment">// All methods are fully typed</span>
+<span class="keyword">const</span> version: <span class="keyword">string</span> = api.<span class="function">version</span>;
+<span class="keyword">const</span> isTerminated: <span class="keyword">boolean</span> = api.<span class="function">isTerminated</span>();
+<span class="keyword">const</span> config = api.<span class="function">config</span>;</div>
+        </div>
+        
+        <div class="button-group">
+            <button class="button" onclick="showVersion()">Get Version</button>
+            <button class="button" onclick="showConfig()">Get Config</button>
+            <button class="button" onclick="checkTerminated()">Check Status</button>
+            <button class="button secondary" onclick="showAllInfo()">Show All Info</button>
+        </div>
+        
+        <div class="output" id="output">Click a button to see type-safe API usage...</div>
+        
+        <div class="file-list">
+            <h3>TypeScript Files in This Demo</h3>
+            <ul>
+                <li>devtools-terminator.d.ts - Type definitions</li>
+                <li>typescript-demo.ts - Comprehensive TypeScript examples</li>
+                <li>typescript-demo.html - This interactive demo</li>
+            </ul>
+            <p style="margin-top: 16px; color: #7d6608; font-size: 14px;">
+                See <strong>typescript-demo.ts</strong> for 12 detailed examples including:
+                React, Angular, Vue integration, configuration builders, type guards, and more!
+            </p>
+        </div>
+    </div>
+    
+    <!-- Include DevTools Terminator (disabled for demo purposes) -->
+    <!-- <script src="../src/client/devtools-terminator.js"></script> -->
+    
+    <script>
+        // ============================================================
+        // MOCK API FOR DEMO PURPOSES ONLY
+        // This allows interaction without triggering actual termination
+        // In production, the real library would be loaded above
+        // ============================================================
+        if (!window.DevToolsTerminator) {
+            window.DevToolsTerminator = {
+                version: '2.0.0',
+                config: {
+                    terminationUrl: 'terminated.html',
+                    checkInterval: 100,
+                    enableWindowSizeCheck: true,
+                    enableKeyboardBlock: true,
+                    disableOnMobile: false
+                },
+                terminate: function() {
+                    alert('terminate() called - Session would be terminated in production');
+                },
+                isTerminated: function() {
+                    return false;
+                }
+            };
+        }
+        
+        function showVersion() {
+            var output = document.getElementById('output');
+            if (!output) return;
+            
+            var api = window.DevToolsTerminator;
+            
+            output.textContent = 
+                'Type: string (readonly)\n' +
+                'Value: ' + api.version + '\n\n' +
+                'TypeScript Definition:\n' +
+                'readonly version: string;';
+        }
+        
+        function showConfig() {
+            var output = document.getElementById('output');
+            if (!output) return;
+            
+            var api = window.DevToolsTerminator;
+            
+            output.textContent = 
+                'Type: Readonly<Required<Omit<DevToolsTerminatorConfig, \'onTerminate\'>>>\n\n' +
+                'Value:\n' +
+                JSON.stringify(api.config, null, 2) + '\n\n' +
+                'TypeScript Definition:\n' +
+                'readonly config: Readonly<Required<Omit<DevToolsTerminatorConfig, \'onTerminate\'>>>;';
+        }
+        
+        function checkTerminated() {
+            var output = document.getElementById('output');
+            if (!output) return;
+            
+            var api = window.DevToolsTerminator;
+            var isTerminated = api.isTerminated();
+            
+            output.textContent = 
+                'Method: isTerminated()\n' +
+                'Return Type: boolean\n' +
+                'Value: ' + isTerminated + '\n\n' +
+                'TypeScript Definition:\n' +
+                'isTerminated(): boolean;\n\n' +
+                '@returns true if session has been terminated, false otherwise';
+        }
+        
+        function showAllInfo() {
+            var output = document.getElementById('output');
+            if (!output) return;
+            
+            var api = window.DevToolsTerminator;
+            
+            output.textContent = 
+                '=== DevTools Terminator API ===\n\n' +
+                'Version: ' + api.version + '\n' +
+                'Type: string (readonly)\n\n' +
+                'Configuration:\n' +
+                JSON.stringify(api.config, null, 2) + '\n\n' +
+                'Is Terminated: ' + api.isTerminated() + '\n' +
+                'Type: boolean\n\n' +
+                'Available Methods:\n' +
+                '- terminate(): void\n' +
+                '- isTerminated(): boolean\n\n' +
+                'All types are defined in devtools-terminator.d.ts\n' +
+                'Full IntelliSense support in VS Code, WebStorm, etc.';
+        }
+    </script>
+</body>
+</html>

@@ -1,11 +1,12 @@
 {
   "name": "devtools-terminator",
-  "version": "2.0.0",
-  "description": "A powerful JavaScript library that detects and terminates sessions when browser Developer Tools are opened",
-  "main": "devtools-terminator.js",
-  "types": "devtools-terminator.d.ts",
+  "version": "2.1.0",
+  "description": "A powerful JavaScript library that detects and terminates sessions when browser Developer Tools are opened. Now with hybrid client-server mode for enhanced security.",
+  "main": "src/client/devtools-terminator.js",
+  "types": "src/types/devtools-terminator.d.ts",
   "scripts": {
-    "serve": "python3 -m http.server 8000 || python -m SimpleHTTPServer 8000 || php -S localhost:8000"
+    "serve": "python3 -m http.server 8000 || python -m SimpleHTTPServer 8000 || php -S localhost:8000",
+    "demo": "cd examples && npm install && npm start"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,11 @@
     "session",
     "termination",
     "browser",
-    "javascript"
+    "javascript",
+    "server-side",
+    "hybrid",
+    "challenge-response",
+    "heartbeat"
   ],
   "author": "Mohammad Faiz",
   "license": "MIT",
@@ -30,11 +35,11 @@
   },
   "homepage": "https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator#readme",
   "files": [
-    "devtools-terminator.js",
-    "devtools-terminator.d.ts",
-    "examples/demo.html",
-    "examples/terminated.html",
-    "assets/icons/",
+    "src/",
+    "public/",
+    "examples/",
+    "docs/",
+    "assets/",
     "README.md",
     "LICENSE"
   ]
