@@ -156,25 +156,39 @@
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(function(registrations) {
                         registrations.forEach(function(registration) {
+                            // Errors ignored - service worker cleanup is best-effort
                             registration.unregister().catch(function() {});
                         });
-                    }).catch(function() {});
+                    }).catch(function() {
+                        // getRegistrations can fail if API is disabled
+                    });
                 }
                 
                 // Clear caches with error handling
                 if ('caches' in window) {
                     caches.keys().then(function(names) {
                         names.forEach(function(name) {
+                            // Errors ignored - cache cleanup is best-effort
                             caches.delete(name).catch(function() {});
                         });
-                    }).catch(function() {});
+                    }).catch(function() {
+                        // Cache API can fail if disabled or in private mode
+                    });
                 }
-            } catch (e) {}
+            } catch (e) {
+                // All cleanup is best-effort; errors don't prevent page display
+            }
             
-            // Prevent navigation back
+            // Prevent navigation back (limited to prevent memory issues)
+            var backAttempts = 0;
+            var MAX_BACK_ATTEMPTS = 100;
+            
             history.pushState(null, '', window.location.href);
             window.addEventListener('popstate', function() {
-                history.pushState(null, '', window.location.href);
+                if (backAttempts < MAX_BACK_ATTEMPTS) {
+                    history.pushState(null, '', window.location.href);
+                    backAttempts++;
+                }
             });
             
             // Disable all interactions
