@@ -1,6 +1,6 @@
 /**
  * DevTools Terminator - Session Protection Library
- * @version 1.0.0
+ * @version 2.0.0
  * @author Mohammad Faiz
  * @license MIT
  * @description Detects and terminates sessions when browser Developer Tools are opened
@@ -374,7 +374,7 @@
      * Expose public API
      */
     window.DevToolsTerminator = {
-        version: '1.0.0',
+        version: '2.0.0',
         terminate: terminateSession,
         isTerminated: function() { return _terminated; },
         config: Object.freeze({
