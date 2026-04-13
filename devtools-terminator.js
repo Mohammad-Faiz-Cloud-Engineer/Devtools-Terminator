@@ -76,13 +76,19 @@
     }
     
     /**
-     * Validate termination URL to prevent XSS
+     * Validate termination URL to prevent XSS and path traversal
      */
     function isValidTerminationUrl(url) {
         if (!url || typeof url !== 'string') return false;
         
-        // Allow relative URLs
-        if (url.charAt(0) === '/' || url.charAt(0) === '.') return true;
+        // Block path traversal attempts
+        if (url.indexOf('..') !== -1) return false;
+        
+        // Allow relative URLs starting with /
+        if (url.charAt(0) === '/') return true;
+        
+        // Allow simple relative URLs (filename only, no path traversal)
+        if (url.indexOf('/') === -1 && url.indexOf('\\') === -1) return true;
         
         // Allow http and https only
         if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) return true;
@@ -105,7 +111,8 @@
                 _monitoringInterval = null;
             }
         } catch (e) {
-            // Interval clearing failed, continue anyway
+            // Interval clearing can fail in some edge cases (e.g., browser shutting down)
+            // Continue with termination anyway
         }
         
         // Execute custom handler if provided (but don't let it block default behavior)
@@ -113,7 +120,8 @@
             try {
                 CUSTOM_TERMINATE_HANDLER();
             } catch (e) {
-                // Custom handler failed, continue with default behavior
+                // Custom handler errors should not prevent termination
+                // User code errors are their responsibility
             }
         }
         
@@ -126,7 +134,8 @@
             // Clear all cookies properly
             clearAllCookies();
         } catch (e) {
-            // Storage clearing failed, continue anyway
+            // Storage APIs can throw in private browsing mode or when disabled
+            // Continue with redirect anyway
         }
         
         // Validate and redirect to termination page
@@ -151,10 +160,12 @@
     });
     
     function checkDevTools() {
-        // Don't reset flag if already terminated (prevents race conditions)
+        // Skip detection if already terminated (prevents race conditions)
         if (_terminated) return false;
         _devtoolsOpen = false;
         console.log(element);
+        // Note: console.clear() is intentionally called on every check
+        // This is part of the detection mechanism and prevents console accumulation
         console.clear();
         return _devtoolsOpen;
     }
@@ -164,6 +175,7 @@
     /**
      * Detect if running on iOS device
      * iOS has different viewport behavior that causes false positives
+     * Note: Second condition detects iPad Pro in desktop mode (reports as macOS but has touch)
      */
     function isIOSDevice() {
         return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
@@ -174,9 +186,18 @@
      * Detect if running on mobile device
      */
     function isMobileDevice() {
-        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        // Check iOS first using dedicated function
+        if (isIOSDevice()) return true;
+        
+        // Check other mobile platforms
+        return /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
                (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
     }
+    
+    // Threshold for window size detection (in pixels)
+    // When DevTools are docked, they create a difference between outer and inner dimensions
+    // 160px is chosen to avoid false positives from browser chrome while catching docked DevTools
+    var WINDOW_SIZE_THRESHOLD = 160;
     
     /**
      * Detection using window size
@@ -198,8 +219,8 @@
         var widthDiff = window.outerWidth - window.innerWidth;
         var heightDiff = window.outerHeight - window.innerHeight;
         
-        if (widthDiff > 160) return true;
-        if (heightDiff > 160) return true;
+        if (widthDiff > WINDOW_SIZE_THRESHOLD) return true;
+        if (heightDiff > WINDOW_SIZE_THRESHOLD) return true;
         
         return false;
     }
@@ -221,49 +242,47 @@
                 shouldTerminate = true;
             }
             // Ctrl+Shift+I (Dev Tools)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+            else if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+J (Console)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
+            else if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+Shift+C (Inspect Element)
-            if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+            else if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Ctrl+U (View Source)
-            if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            else if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
-            // Ctrl+S (Save Page)
-            if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
+            // Ctrl+S (Save Page) - block but don't terminate (less severe)
+            else if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
                 e.preventDefault();
-                return false;
             }
             // Cmd+Option+I (Mac Dev Tools)
-            if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
+            else if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+J (Mac Console)
-            if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
+            else if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             // Cmd+Option+U (Mac View Source)
-            if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u')) {
+            else if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u')) {
                 e.preventDefault();
                 shouldTerminate = true;
             }
             
             if (shouldTerminate) {
                 terminateSession();
-                return false;
             }
         });
     }
@@ -299,7 +318,8 @@
             if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
                 return true;
             }
-            if (target && target.closest && target.closest('pre, code, .protected')) {
+            // Check for closest method support (IE11+)
+            if (target && typeof target.closest === 'function' && target.closest('pre, code, .protected')) {
                 e.preventDefault();
                 return false;
             }
@@ -314,11 +334,6 @@
     function startMonitoring() {
         // Check every CHECK_INTERVAL ms for near-instant detection
         _monitoringInterval = setInterval(function() {
-            if (_terminated) {
-                clearInterval(_monitoringInterval);
-                _monitoringInterval = null;
-                return;
-            }
             checkDevTools();
             if (checkWindowSize()) {
                 terminateSession();
@@ -332,7 +347,7 @@
      * Initialize DevTools Terminator
      */
     function init() {
-        // Prevent multiple initialization - set flag immediately to avoid race conditions
+        // Prevent multiple initialization with atomic check-and-set
         if (_initialized) return;
         _initialized = true;
         
@@ -362,13 +377,13 @@
         version: '1.0.0',
         terminate: terminateSession,
         isTerminated: function() { return _terminated; },
-        config: {
+        config: Object.freeze({
             terminationUrl: TERMINATION_URL,
             checkInterval: CHECK_INTERVAL,
             enableWindowSizeCheck: ENABLE_WINDOW_SIZE_CHECK,
             enableKeyboardBlock: ENABLE_KEYBOARD_BLOCK,
             disableOnMobile: DISABLE_ON_MOBILE
-        }
+        })
     };
     
 })();
