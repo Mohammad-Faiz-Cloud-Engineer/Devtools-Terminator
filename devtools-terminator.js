@@ -76,6 +76,22 @@
     }
     
     /**
+     * Validate termination URL to prevent XSS
+     */
+    function isValidTerminationUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+        
+        // Allow relative URLs
+        if (url.charAt(0) === '/' || url.charAt(0) === '.') return true;
+        
+        // Allow http and https only
+        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) return true;
+        
+        // Block javascript:, data:, vbscript:, file:, etc.
+        return false;
+    }
+    
+    /**
      * Terminate session and redirect to termination page
      */
     function terminateSession() {
@@ -113,8 +129,9 @@
             // Storage clearing failed, continue anyway
         }
         
-        // Redirect to termination page
-        window.location.replace(TERMINATION_URL);
+        // Validate and redirect to termination page
+        var safeUrl = isValidTerminationUrl(TERMINATION_URL) ? TERMINATION_URL : 'about:blank';
+        window.location.replace(safeUrl);
     }
     
     // ==================== DETECTION METHOD 1: CONSOLE LOGGING ====================
@@ -178,9 +195,13 @@
         }
         
         // Only check on desktop where this method is reliable
-        var widthThreshold = window.outerWidth - window.innerWidth > 160;
-        var heightThreshold = window.outerHeight - window.innerHeight > 160;
-        return widthThreshold || heightThreshold;
+        var widthDiff = window.outerWidth - window.innerWidth;
+        var heightDiff = window.outerHeight - window.innerHeight;
+        
+        if (widthDiff > 160) return true;
+        if (heightDiff > 160) return true;
+        
+        return false;
     }
     
     // ==================== DETECTION METHOD 3: KEYBOARD SHORTCUTS ====================
@@ -311,7 +332,7 @@
      * Initialize DevTools Terminator
      */
     function init() {
-        // Prevent multiple initialization - set flag immediately
+        // Prevent multiple initialization - set flag immediately to avoid race conditions
         if (_initialized) return;
         _initialized = true;
         
