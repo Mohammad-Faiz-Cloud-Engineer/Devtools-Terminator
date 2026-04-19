@@ -53,9 +53,9 @@ Devtools-Terminator-main/
 ├── src/                          # Source code
 │   ├── client/                   # Client-side libraries
 │   │   ├── devtools-terminator.js          # Main library (12KB)
-│   │   └── devtools-terminator-hybrid.js   # Enhanced client (15KB)
+│   │   └── devtools-terminator-hybrid.js   # Enhanced client (16KB)
 │   ├── server/                   # Server-side modules
-│   │   └── devtools-terminator-server.js   # Server module (10KB)
+│   │   └── devtools-terminator-server.js   # Server module (12KB)
 │   └── types/                    # TypeScript definitions
 │       └── devtools-terminator.d.ts        # Type definitions
 ├── public/                       # Public assets
@@ -91,8 +91,8 @@ public/terminated.html               <- Termination page
 
 **Advanced Setup (With Server):**
 ```
-src/client/devtools-terminator-hybrid.js   <- Enhanced client (15KB)
-src/server/devtools-terminator-server.js   <- Server module (10KB)
+src/client/devtools-terminator-hybrid.js   <- Enhanced client (16KB)
+src/server/devtools-terminator-server.js   <- Server module (12KB)
 public/terminated.html                     <- Termination page
 ```
 
@@ -146,7 +146,7 @@ This isn't security theater. The code is battle-tested in production environment
 - **Fast detection**: 100ms polling interval for near-instant response
 - **Mobile-aware**: Smart detection that avoids false positives on phones and tablets
 - **Complete cleanup**: Clears localStorage, sessionStorage, cookies, service workers, and caches
-- **Zero dependencies**: Pure vanilla JavaScript, under 5KB when minified
+- **Zero dependencies**: Pure vanilla JavaScript, small footprint (12KB unminified, ~5KB minified)
 - **Configurable**: Customize behavior without editing source code
 - **Cross-browser**: Firefox, Safari, Edge, Opera, and Chromium-based browsers fully supported
 - **TypeScript support**: Full type definitions with IntelliSense support (.d.ts included)
@@ -245,9 +245,9 @@ const devtoolsTerminator = require('./src/server/devtools-terminator-server');
 
 app.use(devtoolsTerminator.middleware({
     secret: process.env.DEVTOOLS_SECRET,
-    protectedPaths: ['/admin', '/dashboard'],
-    onTerminate: (req, sessionId) => {
-        console.log('DevTools detected:', sessionId);
+    apiPath: '/api/devtools-terminator',
+    onTerminate: (req, sessionId, code) => {
+        console.log('DevTools detected:', sessionId, 'Code:', code);
     }
 }));
 ```
