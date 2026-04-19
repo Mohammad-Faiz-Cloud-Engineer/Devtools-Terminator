@@ -166,6 +166,7 @@
             const start = performance.now();
             debugger; // Evaluates instantly if DevTools closed, stalls if open
             const end = performance.now();
+            // Threshold: 100ms - debugger statement takes >100ms when DevTools is open
             if (end - start > 100) {
                 Terminator.execute('SEC_DEVTOOLS_DEBUGGER_002');
             }
@@ -178,6 +179,7 @@
             }
             if (!config.enableWindowSizeCheck) return;
 
+            // Threshold: 160px - typical minimum DevTools panel width when docked
             const threshold = 160;
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
