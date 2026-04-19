@@ -77,7 +77,7 @@ class DevToolsTerminatorServer {
         this.sessions.set(sessionId, sessionData);
 
         // Audit Logging
-        console.warn(`[DevTools Terminator] 🚨 Session Terminated: ${sessionId} | Code: ${code} | IP: ${req.ip}`);
+        console.warn(`[DevTools Terminator] [ALERT] Session Terminated: ${sessionId} | Code: ${code} | IP: ${req.ip}`);
 
         if (typeof this.config.onTerminate === 'function') {
             try {
@@ -102,7 +102,7 @@ class DevToolsTerminatorServer {
                 
                 // If marked as terminated, explicitly reject access
                 if (sessionData && sessionData.isTerminated) {
-                    console.warn(`[DevTools Terminator] 🚫 Blocked access attempt from terminated session: ${sessionId}`);
+                    console.warn(`[DevTools Terminator] [BLOCKED] Blocked access attempt from terminated session: ${sessionId}`);
                     return res.status(403).send('Session terminated due to security violation.');
                 }
                 return next();
@@ -137,7 +137,7 @@ class DevToolsTerminatorServer {
 
         // Verify cryptographic signature
         if (!this.verifySignature(payload, signature)) {
-            console.error(`[DevTools Terminator] ⚠️ Invalid heartbeat signature from ${sessionId}`);
+            console.error(`[DevTools Terminator] [WARNING] Invalid heartbeat signature from ${sessionId}`);
             this.terminateSession(sessionId, req, 'SEC_DEVTOOLS_INVALID_SIG');
             return res.status(403).json({ error: 'Invalid cryptographic signature' });
         }
@@ -153,7 +153,7 @@ class DevToolsTerminatorServer {
 
         // Replay attack protection (timestamp must be within 10 seconds)
         if (timeDiff > 10000) {
-            console.error(`[DevTools Terminator] ⚠️ Replay attack detected from ${sessionId} (Time diff: ${timeDiff}ms)`);
+            console.error(`[DevTools Terminator] [WARNING] Replay attack detected from ${sessionId} (Time diff: ${timeDiff}ms)`);
             return res.status(403).json({ error: 'Timestamp expired (Replay Attack Prevention)' });
         }
 
