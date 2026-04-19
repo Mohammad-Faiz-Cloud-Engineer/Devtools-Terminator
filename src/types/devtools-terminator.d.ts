@@ -1,91 +1,89 @@
 /**
- * DevTools Terminator - TypeScript Definitions
- * @version 2.1.0
- * @author Mohammad Faiz
- * @license MIT
+ * DevTools Terminator TypeScript Definitions
  */
 
-/**
- * Configuration options for DevTools Terminator
- */
-declare interface DevToolsTerminatorConfig {
-    /**
-     * URL to redirect to when DevTools are detected
-     * @default 'terminated.html'
-     */
-    terminationUrl?: string;
-
-    /**
-     * Interval in milliseconds between detection checks
-     * @default 100
-     */
-    checkInterval?: number;
-
-    /**
-     * Enable window size detection method
-     * @default true
-     */
-    enableWindowSizeCheck?: boolean;
-
-    /**
-     * Enable keyboard shortcut blocking
-     * @default true
-     */
-    enableKeyboardBlock?: boolean;
-
-    /**
-     * Force disable on mobile devices
-     * @default false
-     */
-    disableOnMobile?: boolean;
-
-    /**
-     * Custom handler called when DevTools are detected
-     * Note: Default termination behavior still runs after this
-     */
-    onTerminate?: () => void;
+declare global {
+    interface Window {
+        DEVTOOLS_TERMINATOR_CONFIG?: Partial<DevToolsTerminatorConfig>;
+        DevToolsTerminator: DevToolsTerminatorAPI;
+    }
 }
 
-/**
- * DevTools Terminator Public API
- */
-declare interface DevToolsTerminatorAPI {
+export interface DevToolsTerminatorConfig {
     /**
-     * Library version
+     * URL to redirect the user to upon termination.
+     * @default "terminated.html"
      */
-    readonly version: string;
+    terminationUrl: string;
 
     /**
-     * Current configuration
+     * Polling interval in milliseconds for DevTools checks.
+     * @default 100
      */
-    readonly config: Readonly<Required<Omit<DevToolsTerminatorConfig, 'onTerminate'>>>;
+    checkInterval: number;
 
     /**
-     * Manually trigger session termination
-     * @returns void
+     * Detect docked DevTools by measuring viewport dimensions.
+     * @default true
+     */
+    enableWindowSizeCheck: boolean;
+
+    /**
+     * Block common DevTools keyboard shortcuts (e.g., F12, Ctrl+Shift+I).
+     * @default true
+     */
+    enableKeyboardBlock: boolean;
+
+    /**
+     * Automatically disable false-positive prone checks (like size detection) on mobile devices.
+     * @default true
+     */
+    disableOnMobile: boolean;
+
+    /**
+     * [Hybrid Only] Enable server-side cryptographic validation.
+     * @default true
+     */
+    serverValidation?: boolean;
+
+    /**
+     * [Hybrid Only] The endpoint to ping heartbeats and termination payloads.
+     * @default "/api/devtools-terminator"
+     */
+    apiEndpoint?: string;
+
+    /**
+     * [Hybrid Only] The secret to use for generating HMAC signatures.
+     */
+    secret?: string;
+
+    /**
+     * Callback fired when DevTools are detected and termination is initiated.
+     */
+    onTerminate?: (code: string) => void;
+}
+
+export interface DevToolsTerminatorAPI {
+    /**
+     * Library version string.
+     */
+    version: string;
+
+    /**
+     * Check if the session has been terminated.
+     */
+    isTerminated(): boolean;
+
+    /**
+     * Manually trigger a termination event.
      */
     terminate(): void;
 
     /**
-     * Check if session has been terminated
-     * @returns true if session has been terminated, false otherwise
+     * Read-only reference to the active configuration.
      */
-    isTerminated(): boolean;
+    readonly config: Readonly<DevToolsTerminatorConfig>;
 }
 
-/**
- * Global Window augmentation
- */
-declare interface Window {
-    /**
-     * Configuration for DevTools Terminator
-     * Must be set before the script loads
-     */
-    DEVTOOLS_TERMINATOR_CONFIG?: DevToolsTerminatorConfig;
-
-    /**
-     * DevTools Terminator Public API
-     * Available after the script loads
-     */
-    DevToolsTerminator: DevToolsTerminatorAPI;
-}
+declare const DevToolsTerminator: DevToolsTerminatorAPI;
+export default DevToolsTerminator;
