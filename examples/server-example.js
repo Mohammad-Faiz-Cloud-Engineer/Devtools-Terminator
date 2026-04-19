@@ -34,7 +34,7 @@ const dtConfig = {
     onTerminate: (req, sessionId, code) => {
         // This hook runs on the server the moment DevTools is detected or a heartbeat fails.
         // Good place for Webhooks, Slack alerts, or database auditing.
-        console.log(`\n[SECURITY ALERT] 🚨 User session [${sessionId}] triggered DevTools!`);
+        console.log(`\n[SECURITY ALERT] User session [${sessionId}] triggered DevTools!`);
         console.log(`Reason Code: ${code}`);
         console.log(`IP Address: ${req.ip}\n`);
     }
@@ -122,7 +122,7 @@ app.get('/api/secure-data', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`\n===========================================`);
-    console.log(`🛡️  DevTools Terminator Server Active 🛡️`);
+    console.log(`[ DevTools Terminator Server Active ]`);
     console.log(`===========================================`);
     console.log(`Server running at http://localhost:${PORT}`);
     console.log(`1. Open the URL in your browser to start the hybrid session.`);
