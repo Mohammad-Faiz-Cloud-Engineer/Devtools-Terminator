@@ -5,8 +5,7 @@
   "main": "src/client/devtools-terminator.js",
   "types": "src/types/devtools-terminator.d.ts",
   "scripts": {
-    "start": "node examples/server-example.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node examples/server-example.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +34,7 @@
     "cookie-parser": "^1.4.0",
     "body-parser": "^1.20.0"
   },
+  "optionalDependencies": {},
   "engines": {
     "node": ">=14.0.0"
   }
