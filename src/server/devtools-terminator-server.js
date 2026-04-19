@@ -11,20 +11,32 @@ const crypto = require('crypto');
 
 class DevToolsTerminatorServer {
     constructor(config = {}) {
+        // Configuration constants
+        const HEARTBEAT_TIMEOUT_MS = 45000; // 45 seconds (client sends every 30s)
+        const CLEANUP_INTERVAL_MS = 60000;  // 60 seconds
+        const REPLAY_ATTACK_WINDOW_MS = 10000; // 10 seconds
+        
         this.config = {
             secret: process.env.DEVTOOLS_SECRET || 'default_challenge_secret',
-            heartbeatTimeout: 45000, // 45 seconds (client sends every 30s)
+            heartbeatTimeout: HEARTBEAT_TIMEOUT_MS,
             apiPath: '/api/devtools-terminator',
             onTerminate: null,
+            replayAttackWindow: REPLAY_ATTACK_WINDOW_MS,
             ...config
         };
+        
+        // SECURITY WARNING: Fail fast if using default secret in production
+        if (this.config.secret === 'default_challenge_secret' && process.env.NODE_ENV === 'production') {
+            throw new Error('[DevTools Terminator] CRITICAL: Default secret detected in production! Set DEVTOOLS_SECRET environment variable.');
+        }
 
         // In-memory session tracking map
         // Format: { sessionId: { lastHeartbeat: timestamp, isTerminated: boolean, fingerprint: string } }
         this.sessions = new Map();
         
         // Start cleanup interval for stale sessions (prevent memory leaks)
-        this.cleanupInterval = setInterval(() => this.cleanupStaleSessions(), 60000);
+        // Call destroy() method on server shutdown to clear this interval
+        this.cleanupInterval = setInterval(() => this.cleanupStaleSessions(), CLEANUP_INTERVAL_MS);
     }
 
     /**
@@ -52,6 +64,8 @@ class DevToolsTerminatorServer {
             
             return crypto.timingSafeEqual(sigBuf, expBuf);
         } catch (e) {
+            // Log crypto errors for debugging (signature verification failures are security-relevant)
+            console.error('[DevTools Terminator] Signature verification error:', e.message);
             return false;
         }
     }
@@ -151,8 +165,8 @@ class DevToolsTerminatorServer {
         const [fingerprint, scriptHash, timestamp] = parts;
         const timeDiff = Math.abs(Date.now() - parseInt(timestamp, 10));
 
-        // Replay attack protection (timestamp must be within 10 seconds)
-        if (timeDiff > 10000) {
+        // Replay attack protection (timestamp must be within configured window)
+        if (timeDiff > this.config.replayAttackWindow) {
             console.error(`[DevTools Terminator] [WARNING] Replay attack detected from ${sessionId} (Time diff: ${timeDiff}ms)`);
             return res.status(403).json({ error: 'Timestamp expired (Replay Attack Prevention)' });
         }
