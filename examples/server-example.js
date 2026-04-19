@@ -20,7 +20,11 @@ app.use(session({
     secret: 'example_app_session_secret',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Set to true if using HTTPS in production
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // Secure cookies in production (HTTPS required)
+        httpOnly: true, // Prevent client-side JavaScript access to cookies
+        sameSite: 'strict' // CSRF protection
+    }
 }));
 
 // 2. Configure and apply DevTools Terminator Server Middleware
