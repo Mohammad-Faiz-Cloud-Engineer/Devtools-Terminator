@@ -37,7 +37,9 @@
         disableOnMobile: true,
         serverValidation: true,
         apiEndpoint: '/api/devtools-terminator',
-        secret: 'default_challenge_secret', // Should be injected securely by backend
+        // WARNING: Default secret is insecure! Override via window.DEVTOOLS_TERMINATOR_CONFIG
+        // Generate strong secret: openssl rand -hex 32
+        secret: 'default_challenge_secret',
         onTerminate: null
     };
 
@@ -269,6 +271,7 @@
             const start = performance.now();
             debugger; // Evaluates instantly if DevTools closed, stalls if open
             const end = performance.now();
+            // Threshold: 100ms - debugger statement takes >100ms when DevTools is open
             if (end - start > 100) {
                 Terminator.execute('SEC_DEVTOOLS_DEBUGGER_002');
             }
@@ -281,6 +284,7 @@
             }
             if (!config.enableWindowSizeCheck) return;
 
+            // Threshold: 160px - typical minimum DevTools panel width when docked
             const threshold = 160;
             const widthDiff = window.outerWidth - window.innerWidth;
             const heightDiff = window.outerHeight - window.innerHeight;
@@ -369,9 +373,10 @@
 
         // Server Heartbeat Loop
         if (config.serverValidation) {
+            // Heartbeat interval: 30 seconds (server timeout is 45s)
             createInterval(() => {
                 if (!isTerminated) HybridSec.sendHeartbeat();
-            }, 30000); // Send heartbeat every 30 seconds
+            }, 30000);
             
             // Initial boot ping
             HybridSec.sendHeartbeat();
