@@ -37,8 +37,10 @@
         disableOnMobile: true,
         serverValidation: true,
         apiEndpoint: '/api/devtools-terminator',
-        // WARNING: Default secret is insecure! Override via window.DEVTOOLS_TERMINATOR_CONFIG
+        // SECURITY CRITICAL: Default secret is INSECURE and MUST be overridden!
+        // This default exists only for testing. In production, you MUST set a strong secret.
         // Generate strong secret: openssl rand -hex 32
+        // Override via window.DEVTOOLS_TERMINATOR_CONFIG = { secret: 'your_secret_here' }
         secret: 'default_challenge_secret',
         onTerminate: null
     };
