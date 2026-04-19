@@ -3,300 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevTools Terminator - Demo</title>
+    <title>DevTools Terminator - Client Demo</title>
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
-    
-    <!-- NoScript Handler: Terminate session if JavaScript is disabled -->
-    <noscript>
-        <meta http-equiv="refresh" content="0; url=terminated.html">
-        <style>
-            body { display: none !important; }
-            .noscript-warning {
-                display: block !important;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: #0a0a0a;
-                color: #ffffff;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                z-index: 999999;
-            }
-            .noscript-warning .container {
-                max-width: 480px;
-                padding: 40px 24px;
-            }
-            .noscript-warning h1 {
-                font-size: 28px;
-                font-weight: 700;
-                margin-bottom: 16px;
-                color: #ef4444;
-            }
-            .noscript-warning p {
-                font-size: 16px;
-                line-height: 1.7;
-                color: #9ca3af;
-                margin-bottom: 16px;
-            }
-        </style>
-        <div class="noscript-warning">
-            <div class="container">
-                <h1>⛔ JavaScript Required</h1>
-                <p>
-                    This page requires JavaScript to be enabled for security verification.
-                    Your session has been terminated.
-                </p>
-                <p style="font-size: 14px; color: #6b7280;">
-                    Error Code: SEC_NOJS_001
-                </p>
-            </div>
-        </div>
-    </noscript>
-    
-    <!-- Include DevTools Terminator with proper path -->
+    <!-- Configure DevTools Terminator BEFORE loading the script -->
     <script>
-        // Configuration for demo environment
         window.DEVTOOLS_TERMINATOR_CONFIG = {
-            terminationUrl: 'terminated.html',
+            terminationUrl: '../public/terminated.html',
             checkInterval: 100,
             enableWindowSizeCheck: true,
             enableKeyboardBlock: true
         };
     </script>
+    
+    <!-- Load the client-only library -->
     <script src="../src/client/devtools-terminator.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            padding: 2rem; 
+            background: #f9fafb; 
+            color: #111827; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+        }
+        h1 { color: #2563eb; }
+        .status { 
+            padding: 1rem; 
+            background: #dcfce7; 
+            color: #166534; 
+            border-radius: 4px; 
+            font-weight: bold; 
+            margin-bottom: 1rem; 
+            display: flex;
+            align-items: center;
+        }
+        .status svg { margin-right: 8px; }
+        ul { line-height: 1.8; }
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
             box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            background: white;
-            border-radius: 16px;
-            padding: 48px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-        
-        h1 {
-            font-size: 36px;
-            color: #1a202c;
-            margin-bottom: 16px;
-        }
-        
-        .subtitle {
-            font-size: 18px;
-            color: #718096;
-            margin-bottom: 32px;
-        }
-        
-        .warning-box {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .warning-box h2 {
-            color: #856404;
-            font-size: 20px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .warning-box p {
-            color: #856404;
-            line-height: 1.6;
-        }
-        
-        .feature-list {
-            list-style: none;
-            margin-bottom: 32px;
-        }
-        
-        .feature-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .feature-list li:last-child {
-            border-bottom: none;
-        }
-        
-        .checkmark {
-            width: 20px;
-            height: 20px;
-            background: #48bb78;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            position: relative;
-        }
-        
-        .checkmark::after {
-            content: '';
-            width: 5px;
-            height: 10px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-            margin-bottom: 2px;
-        }
-        
-        .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 20px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            overflow-x: auto;
-            margin-bottom: 32px;
-        }
-        
-        .button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .button:hover {
-            background: #5568d3;
-        }
-        
-        .status {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #f7fafc;
-            color: #2d3748;
-            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>DevTools Terminator Demo</h1>
-        <p class="subtitle">Try opening Developer Tools to see the protection in action!</p>
-        
-        <div class="warning-box">
-            <h2>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                Warning: Protection Active
-            </h2>
-            <p>
-                This page is protected by DevTools Terminator. If you open the browser's Developer Tools 
-                (F12, Ctrl+Shift+I, or right-click → Inspect), your session will be immediately terminated 
-                and all data will be cleared.
-            </p>
+        <h1>DevTools Terminator</h1>
+        <div class="status">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Client-Side Protection is Active
         </div>
         
-        <h3 style="margin-bottom: 16px; color: #2d3748;">Active Protection Features:</h3>
-        <ul class="feature-list">
-            <li>
-                <span class="checkmark"></span>
-                <span>Console logging detection (primary method)</span>
-            </li>
-            <li>
-                <span class="checkmark"></span>
-                <span>Window size detection (desktop only)</span>
-            </li>
-            <li>
-                <span class="checkmark"></span>
-                <span>Keyboard shortcut blocking (F12, Ctrl+Shift+I, etc.)</span>
-            </li>
-            <li>
-                <span class="checkmark"></span>
-                <span>Right-click context menu disabled</span>
-            </li>
-            <li>
-                <span class="checkmark"></span>
-                <span>Text selection protection</span>
-            </li>
-            <li>
-                <span class="checkmark"></span>
-                <span>Drag and drop disabled</span>
-            </li>
+        <p>This page is protected by the lightweight, zero-dependency client-only DevTools Terminator. If you attempt to open developer tools, your session will be instantly terminated and local data will be wiped.</p>
+        
+        <h3>Test the protection triggers:</h3>
+        <ul>
+            <li>Press <strong>F12</strong></li>
+            <li>Press <strong>Ctrl+Shift+I</strong> (Windows/Linux) or <strong>Cmd+Option+I</strong> (Mac)</li>
+            <li>Press <strong>Ctrl+U</strong> (View Source)</li>
+            <li>Right-click anywhere to attempt to open the context menu</li>
+            <li>Attempt to drag text or elements</li>
         </ul>
-        
-        <h3 style="margin-bottom: 16px; color: #2d3748;">How to Use:</h3>
-        <div class="code-block">
-&lt;!-- Include the script in your HTML --&gt;
-&lt;script src="devtools-terminator.js"&gt;&lt;/script&gt;
 
-&lt;!-- Optional: Configure before including --&gt;
-&lt;script&gt;
-window.DEVTOOLS_TERMINATOR_CONFIG = {
-    terminationUrl: '/terminated.html',
-    checkInterval: 100,
-    enableWindowSizeCheck: true,
-    enableKeyboardBlock: true
-};
-&lt;/script&gt;
-        </div>
-        
-        <button class="button" onclick="testProtection()">
-            Test Protection Status
-        </button>
-        
-        <div class="status" id="status" style="display: none;"></div>
+        <p style="margin-top: 2rem; color: #6b7280; font-size: 0.875rem;">
+            Notice how text selection is globally blocked to prevent copy-pasting code, EXCEPT inside valid user inputs like the one below:
+        </p>
+        <input type="text" placeholder="You can safely type, click, and select text inside this input box...">
     </div>
-    
-    <script>
-        function testProtection() {
-            var status = document.getElementById('status');
-            if (!status) return;
-            
-            status.style.display = 'block';
-            
-            if (window.DevToolsTerminator) {
-                var config = window.DevToolsTerminator.config;
-                status.innerHTML = 
-                    '<strong>STATUS: DevTools Terminator is Active</strong><br>' +
-                    'Version: ' + window.DevToolsTerminator.version + '<br>' +
-                    'Check Interval: ' + config.checkInterval + 'ms<br>' +
-                    'Window Size Check: ' + (config.enableWindowSizeCheck ? 'Enabled' : 'Disabled') + '<br>' +
-                    'Keyboard Block: ' + (config.enableKeyboardBlock ? 'Enabled' : 'Disabled') + '<br>' +
-                    'Terminated: ' + (window.DevToolsTerminator.isTerminated() ? 'Yes' : 'No');
-            } else {
-                status.innerHTML = '<strong>ERROR: DevTools Terminator not found</strong>';
-            }
-        }
-    </script>
 </body>
 </html>
