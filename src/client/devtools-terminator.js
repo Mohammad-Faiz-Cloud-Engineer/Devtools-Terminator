@@ -1,389 +1,282 @@
 /**
- * DevTools Terminator - Session Protection Library
- * @version 2.1.0
- * @author Mohammad Faiz
- * @license MIT
- * @description Detects and terminates sessions when browser Developer Tools are opened
+ * DevTools Terminator - Client-Only Edition
+ * Version: 2.1.0
  * 
- * Features:
- * - Triple detection system (console logging, window size, keyboard shortcuts)
- * - Instant detection (100ms polling)
- * - Mobile-friendly (smart detection, no false positives)
- * - Complete session cleanup (localStorage, sessionStorage, cookies)
- * - Zero dependencies
- * - Cross-browser compatible
- * 
- * Usage:
- *   <script src="devtools-terminator.js"></script>
- * 
- * Configuration (optional):
- *   window.DEVTOOLS_TERMINATOR_CONFIG = {
- *       terminationUrl: 'terminated.html',
- *       checkInterval: 100,
- *       enableWindowSizeCheck: true,
- *       enableKeyboardBlock: true,
- *       disableOnMobile: false,
- *       onTerminate: function() { }
- *   };
+ * A lightweight, zero-dependency browser session protection library.
+ * Detects Developer Tools, terminates sessions, and wipes local data.
+ * Written in vanilla JS with UMD pattern, strict type checks, and CSP compatibility.
  */
 
-(function() {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory();
+    } else {
+        root.DevToolsTerminator = factory();
+    }
+}(typeof self !== 'undefined' ? self : this, function () {
     'use strict';
-    
-    // ==================== CONFIGURATION ====================
-    var config = window.DEVTOOLS_TERMINATOR_CONFIG || {};
-    
-    // Default to terminated.html in same directory, not examples/
-    var TERMINATION_URL = config.terminationUrl || 'terminated.html';
-    var CHECK_INTERVAL = config.checkInterval || 100;
-    var ENABLE_WINDOW_SIZE_CHECK = config.enableWindowSizeCheck !== false;
-    var ENABLE_KEYBOARD_BLOCK = config.enableKeyboardBlock !== false;
-    var DISABLE_ON_MOBILE = config.disableOnMobile || false;
-    var CUSTOM_TERMINATE_HANDLER = config.onTerminate || null;
-    
-    // ==================== STATE ====================
-    var _terminated = false;
-    var _devtoolsOpen = false;
-    var _monitoringInterval = null;
-    var _initialized = false;
-    
-    // ==================== CORE FUNCTIONS ====================
-    
-    /**
-     * Clear all cookies properly
-     */
-    function clearAllCookies() {
-        try {
-            var cookies = document.cookie.split(';');
-            var pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
-            
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
-                var eqPos = cookie.indexOf('=');
-                var name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
-                
-                // Skip empty cookie names
-                if (!name) continue;
-                
-                // Try multiple combinations to ensure deletion
-                document.cookie = name + '=;expires=' + pastDate + ';path=/';
-                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=' + window.location.hostname;
-                document.cookie = name + '=;expires=' + pastDate + ';path=/;domain=.' + window.location.hostname;
-            }
-        } catch (e) {
-            // Cookie clearing failed, continue anyway
-        }
+
+    // 1. Atomic state locks to prevent race conditions or infinite termination loops
+    let isTerminated = false;
+    const intervals = [];
+    const timeouts = [];
+
+    // 2. Default Configuration
+    const defaultConfig = {
+        terminationUrl: 'terminated.html',
+        checkInterval: 100,
+        enableWindowSizeCheck: true,
+        enableKeyboardBlock: true,
+        disableOnMobile: true,
+        onTerminate: null
+    };
+
+    let config = { ...defaultConfig };
+
+    // Extend config from global if exists before freeze
+    if (typeof window !== 'undefined' && window.DEVTOOLS_TERMINATOR_CONFIG) {
+        config = { ...config, ...window.DEVTOOLS_TERMINATOR_CONFIG };
     }
-    
-    /**
-     * Validate termination URL to prevent XSS and path traversal
-     */
-    function isValidTerminationUrl(url) {
-        if (!url || typeof url !== 'string') return false;
-        
-        // Block path traversal attempts
-        if (url.indexOf('..') !== -1) return false;
-        
-        // Allow relative URLs starting with /
-        if (url.charAt(0) === '/') return true;
-        
-        // Allow simple relative URLs (filename only, no path traversal)
-        if (url.indexOf('/') === -1 && url.indexOf('\\') === -1) return true;
-        
-        // Allow http and https only
-        if (url.indexOf('http://') === 0 || url.indexOf('https://') === 0) return true;
-        
-        // Block javascript:, data:, vbscript:, file:, etc.
-        return false;
-    }
-    
-    /**
-     * Terminate session and redirect to termination page
-     */
-    function terminateSession() {
-        if (_terminated) return;
-        _terminated = true;
-        
-        // Stop monitoring immediately - do this first to prevent memory leaks
-        try {
-            if (_monitoringInterval !== null) {
-                clearInterval(_monitoringInterval);
-                _monitoringInterval = null;
-            }
-        } catch (e) {
-            // Interval clearing can fail in some edge cases (e.g., browser shutting down)
-            // Continue with termination anyway
+
+    // Freeze configuration API to prevent malicious external tampering
+    Object.freeze(config);
+
+    // =========================================================================
+    // SMART MOBILE & OS DETECTION
+    // =========================================================================
+    const MobileDetector = {
+        isIOS: function() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        },
+        isIPadOS: function() {
+            // iPadOS spoofs as macOS but has touch points
+            return navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+        },
+        isMobileDevice: function() {
+            const mobileRegex = /Android|webOS|BlackBerry|IEMobile|Opera Mini/i;
+            const isMatch = mobileRegex.test(navigator.userAgent);
+            const isSmallScreen = window.innerWidth <= 800;
+            return isMatch || this.isIOS() || this.isIPadOS() || isSmallScreen;
         }
-        
-        // Execute custom handler if provided (but don't let it block default behavior)
-        if (typeof CUSTOM_TERMINATE_HANDLER === 'function') {
+    };
+
+    // =========================================================================
+    // COMPREHENSIVE SESSION ANNIHILATION
+    // =========================================================================
+    const Terminator = {
+        clearData: function() {
+            // LocalStorage & SessionStorage
+            try { localStorage.clear(); } catch (e) {}
+            try { sessionStorage.clear(); } catch (e) {}
+
+            // Cookies (Iterate through all and force expire across root and domains)
             try {
-                CUSTOM_TERMINATE_HANDLER();
-            } catch (e) {
-                // Custom handler errors should not prevent termination
-                // User code errors are their responsibility
-            }
-        }
-        
-        // Default termination behavior - always runs
-        try {
-            // Clear all storage
-            localStorage.clear();
-            sessionStorage.clear();
+                const cookies = document.cookie.split(';');
+                const pastDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+                const domain = window.location.hostname;
+                
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i];
+                    const eqPos = cookie.indexOf('=');
+                    const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+                    if (!name) continue;
+                    
+                    document.cookie = `${name}=;expires=${pastDate};path=/`;
+                    document.cookie = `${name}=;expires=${pastDate};path=/;domain=${domain}`;
+                    document.cookie = `${name}=;expires=${pastDate};path=/;domain=.${domain}`;
+                }
+            } catch (e) {}
+
+            // IndexedDB
+            try {
+                if (window.indexedDB && typeof window.indexedDB.databases === 'function') {
+                    window.indexedDB.databases().then(dbs => {
+                        dbs.forEach(db => {
+                            if (db.name) window.indexedDB.deleteDatabase(db.name);
+                        });
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+
+            // CacheStorage
+            try {
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    }).catch(() => {});
+                }
+            } catch (e) {}
             
-            // Clear all cookies properly
-            clearAllCookies();
-        } catch (e) {
-            // Storage APIs can throw in private browsing mode or when disabled
-            // Continue with redirect anyway
+            // Service Workers
+            try {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        registrations.forEach(registration => registration.unregister());
+                    }).catch(() => {});
+                }
+            } catch (e) {}
+        },
+
+        execute: function(code = 'SEC_DEVTOOLS_UNKNOWN') {
+            if (isTerminated) return;
+            isTerminated = true;
+
+            // Clear loops to prevent memory leaks / double executions
+            intervals.forEach(clearInterval);
+            timeouts.forEach(clearTimeout);
+
+            // Execute custom callback if provided
+            if (typeof config.onTerminate === 'function') {
+                try { config.onTerminate(code); } catch(e) {}
+            }
+
+            // Wipe out local session data completely
+            this.clearData();
+
+            // Redirect to termination URL without keeping history
+            window.location.replace(config.terminationUrl);
         }
+    };
+
+    // =========================================================================
+    // ADVANCED DEVTOOLS DETECTION ENGINE
+    // =========================================================================
+    const Detector = {
+        element: new Image(),
         
-        // Validate and redirect to termination page
-        var safeUrl = isValidTerminationUrl(TERMINATION_URL) ? TERMINATION_URL : 'about:blank';
-        window.location.replace(safeUrl);
-    }
-    
-    // ==================== DETECTION METHOD 1: CONSOLE LOGGING ====================
-    
-    /**
-     * Detection using devtools-detector pattern
-     * When DevTools console is open, logging an object triggers property getters
-     */
-    var element = new Image();
-    Object.defineProperty(element, 'id', {
-        get: function() {
-            _devtoolsOpen = true;
-            // Terminate immediately when getter is triggered
-            terminateSession();
-            return 'devtools-terminator';
+        init: function() {
+            // Console Logging Getter detection
+            Object.defineProperty(this.element, 'id', {
+                get: function() {
+                    Terminator.execute('SEC_DEVTOOLS_CONSOLE_001');
+                    return 'terminator-element';
+                }
+            });
+        },
+
+        checkConsole: function() {
+            // Browsers evaluate %c and object properties when console is opened
+            console.log('%c', this.element);
+            console.clear();
+        },
+
+        checkDebuggerTiming: function() {
+            const start = performance.now();
+            debugger; // Evaluates instantly if DevTools closed, stalls if open
+            const end = performance.now();
+            if (end - start > 100) {
+                Terminator.execute('SEC_DEVTOOLS_DEBUGGER_002');
+            }
+        },
+
+        checkWindowSize: function() {
+            // Prevent false positives on mobile due to virtual keyboards/address bars
+            if (config.disableOnMobile && MobileDetector.isMobileDevice()) {
+                return;
+            }
+            if (!config.enableWindowSizeCheck) return;
+
+            const threshold = 160;
+            const widthDiff = window.outerWidth - window.innerWidth;
+            const heightDiff = window.outerHeight - window.innerHeight;
+
+            if (widthDiff > threshold || heightDiff > threshold) {
+                Terminator.execute('SEC_DEVTOOLS_SIZE_003');
+            }
         }
-    });
-    
-    function checkDevTools() {
-        // Skip detection if already terminated (prevents race conditions)
-        if (_terminated) return false;
-        _devtoolsOpen = false;
-        console.log(element);
-        // Note: console.clear() is intentionally called on every check
-        // This is part of the detection mechanism and prevents console accumulation
-        console.clear();
-        return _devtoolsOpen;
-    }
-    
-    // ==================== DETECTION METHOD 2: WINDOW SIZE ====================
-    
-    /**
-     * Detect if running on iOS device
-     * iOS has different viewport behavior that causes false positives
-     * Note: Second condition detects iPad Pro in desktop mode (reports as macOS but has touch)
-     */
-    function isIOSDevice() {
-        return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-               (navigator.userAgentData && navigator.userAgentData.platform === 'macOS' && navigator.maxTouchPoints > 1);
-    }
-    
-    /**
-     * Detect if running on mobile device
-     */
-    function isMobileDevice() {
-        // Check iOS first using dedicated function
-        if (isIOSDevice()) return true;
-        
-        // Check other mobile platforms
-        return /Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-               (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
-    }
-    
-    // Threshold for window size detection (in pixels)
-    // When DevTools are docked, they create a difference between outer and inner dimensions
-    // 160px is chosen to avoid false positives from browser chrome while catching docked DevTools
-    var WINDOW_SIZE_THRESHOLD = 160;
-    
-    /**
-     * Detection using window size
-     * Disabled on iOS/mobile devices due to false positives from:
-     * - Dynamic toolbars (Safari address bar hide/show)
-     * - Notches and safe areas
-     * - Keyboard appearance
-     * - Orientation changes
-     */
-    function checkWindowSize() {
-        if (!ENABLE_WINDOW_SIZE_CHECK) return false;
-        
-        // Skip window size check on iOS and mobile devices - too many false positives
-        if (DISABLE_ON_MOBILE && (isIOSDevice() || isMobileDevice())) {
-            return false;
-        }
-        
-        // Only check on desktop where this method is reliable
-        var widthDiff = window.outerWidth - window.innerWidth;
-        var heightDiff = window.outerHeight - window.innerHeight;
-        
-        if (widthDiff > WINDOW_SIZE_THRESHOLD) return true;
-        if (heightDiff > WINDOW_SIZE_THRESHOLD) return true;
-        
-        return false;
-    }
-    
-    // ==================== DETECTION METHOD 3: KEYBOARD SHORTCUTS ====================
-    
-    /**
-     * Disable keyboard shortcuts for dev tools - terminate on attempt
-     */
-    function setupKeyboardProtection() {
-        if (!ENABLE_KEYBOARD_BLOCK) return;
-        
-        document.addEventListener('keydown', function(e) {
-            var shouldTerminate = false;
-            
-            // F12
-            if (e.key === 'F12') {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Ctrl+Shift+I (Dev Tools)
-            else if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Ctrl+Shift+J (Console)
-            else if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Ctrl+Shift+C (Inspect Element)
-            else if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Ctrl+U (View Source)
-            else if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Ctrl+S (Save Page) - block but don't terminate (less severe)
-            else if (e.ctrlKey && (e.key === 'S' || e.key === 's')) {
-                e.preventDefault();
-            }
-            // Cmd+Option+I (Mac Dev Tools)
-            else if (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Cmd+Option+J (Mac Console)
-            else if (e.metaKey && e.altKey && (e.key === 'J' || e.key === 'j')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            // Cmd+Option+U (Mac View Source)
-            else if (e.metaKey && e.altKey && (e.key === 'U' || e.key === 'u')) {
-                e.preventDefault();
-                shouldTerminate = true;
-            }
-            
-            if (shouldTerminate) {
-                terminateSession();
-            }
-        });
-    }
-    
-    // ==================== ADDITIONAL PROTECTIONS ====================
-    
-    /**
-     * Disable right-click context menu
-     */
-    function disableContextMenu() {
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-    }
-    
-    /**
-     * Disable drag
-     */
-    function disableDrag() {
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-    }
-    
-    /**
-     * Disable text selection on sensitive elements
-     */
-    function disableTextSelection() {
-        document.addEventListener('selectstart', function(e) {
-            var target = e.target;
-            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
-                return true;
-            }
-            // Check for closest method support (IE11+)
-            if (target && typeof target.closest === 'function' && target.closest('pre, code, .protected')) {
+    };
+
+    // =========================================================================
+    // STRICT KEYBOARD & UI PROTECTION
+    // =========================================================================
+    const UIProtector = {
+        init: function() {
+            if (!config.enableKeyboardBlock) return;
+
+            // Block Shortcuts: F12, Ctrl+Shift+I/J/C, Cmd+Option+I/J/U, Ctrl+U
+            window.addEventListener('keydown', (e) => {
+                if (
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+                    (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
+                    (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'U' || e.key === 'u'))
+                ) {
+                    e.preventDefault();
+                    Terminator.execute('SEC_DEVTOOLS_KEY_004');
+                    return false;
+                }
+            }, { capture: true });
+
+            // Block Right-Click Context Menu
+            window.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
                 return false;
-            }
-        });
-    }
-    
-    // ==================== MONITORING ====================
-    
-    /**
-     * Start monitoring - check frequently for instant detection
-     */
-    function startMonitoring() {
-        // Check every CHECK_INTERVAL ms for near-instant detection
-        _monitoringInterval = setInterval(function() {
-            checkDevTools();
-            if (checkWindowSize()) {
-                terminateSession();
-            }
-        }, CHECK_INTERVAL);
-    }
-    
-    // ==================== INITIALIZATION ====================
-    
-    /**
-     * Initialize DevTools Terminator
-     */
-    function init() {
-        // Prevent multiple initialization with atomic check-and-set
-        if (_initialized) return;
-        _initialized = true;
-        
-        // Setup protections
-        setupKeyboardProtection();
-        disableContextMenu();
-        disableDrag();
-        disableTextSelection();
-        
-        // Start monitoring
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', startMonitoring);
-        } else {
-            startMonitoring();
+            });
+
+            // Block Drag Events
+            window.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                return false;
+            });
+
+            // Block Text Selection EXCEPT inside valid user inputs
+            window.addEventListener('selectstart', (e) => {
+                const target = e.target;
+                const isInput = target.tagName === 'INPUT' || 
+                                target.tagName === 'TEXTAREA' || 
+                                target.isContentEditable;
+                if (!isInput) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         }
-    }
-    
-    // Start immediately
-    init();
-    
-    // ==================== PUBLIC API ====================
-    
-    /**
-     * Expose public API
-     */
-    window.DevToolsTerminator = {
-        version: '2.1.0',
-        terminate: terminateSession,
-        isTerminated: function() { return _terminated; },
-        config: Object.freeze({
-            terminationUrl: TERMINATION_URL,
-            checkInterval: CHECK_INTERVAL,
-            enableWindowSizeCheck: ENABLE_WINDOW_SIZE_CHECK,
-            enableKeyboardBlock: ENABLE_KEYBOARD_BLOCK,
-            disableOnMobile: DISABLE_ON_MOBILE
-        })
     };
-    
-})();
+
+    // Safe Interval Wrapper
+    function createInterval(fn, time) {
+        const id = setInterval(fn, time);
+        intervals.push(id);
+        return id;
+    }
+
+    // Initialize execution flow
+    function init() {
+        if (typeof window === 'undefined') return;
+
+        Detector.init();
+        UIProtector.init();
+
+        // High-frequency console and size checks
+        createInterval(() => {
+            if (!isTerminated) {
+                Detector.checkConsole();
+                Detector.checkWindowSize();
+            }
+        }, config.checkInterval);
+
+        // Less frequent debugger timing check to conserve CPU cycles
+        createInterval(() => {
+            if (!isTerminated) {
+                Detector.checkDebuggerTiming();
+            }
+        }, config.checkInterval * 5);
+    }
+
+    // Auto-boot sequence
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        window.addEventListener('DOMContentLoaded', init);
+    }
+
+    // Public Frozen API
+    return {
+        version: '2.1.0',
+        isTerminated: () => isTerminated,
+        terminate: () => Terminator.execute('SEC_DEVTOOLS_MANUAL'),
+        config: config
+    };
+}));
