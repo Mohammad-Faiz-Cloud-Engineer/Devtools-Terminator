@@ -13,15 +13,23 @@ const devtoolsTerminator = require('../src/server/devtools-terminator-server');
 const app = express();
 const PORT = 3000;
 
+// SECURITY WARNING: This is a demo file. In production:
+// 1. Use strong random secrets from environment variables
+// 2. Enable HTTPS and set secure: true for cookies
+// 3. Use a production-grade session store (not MemoryStore)
+
 // 1. Basic Express Middleware setup
 app.use(express.json());
 app.use(express.text()); // Important for parsing navigator.sendBeacon string payloads
 app.use(session({
-    secret: 'example_app_session_secret',
+    // WARNING: Use environment variable in production!
+    // Generate: openssl rand -hex 32
+    secret: process.env.SESSION_SECRET || 'CHANGE_THIS_IN_PRODUCTION',
     resave: false,
     saveUninitialized: true,
     cookie: { 
-        secure: process.env.NODE_ENV === 'production', // Secure cookies in production (HTTPS required)
+        // WARNING: Requires HTTPS in production! Set NODE_ENV=production
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true, // Prevent client-side JavaScript access to cookies
         sameSite: 'strict' // CSRF protection
     }
@@ -29,7 +37,10 @@ app.use(session({
 
 // 2. Configure and apply DevTools Terminator Server Middleware
 const dtConfig = {
-    secret: 'super_secret_challenge_key_for_hmac', // Must match the client config!
+    // WARNING: Use environment variable in production!
+    // Generate: openssl rand -hex 32
+    // This MUST match the client config secret!
+    secret: process.env.DEVTOOLS_SECRET || 'CHANGE_THIS_IN_PRODUCTION',
     apiPath: '/api/devtools-terminator',
     onTerminate: (req, sessionId, code) => {
         // This hook runs on the server the moment DevTools is detected or a heartbeat fails.
@@ -58,11 +69,14 @@ app.get('/', (req, res) => {
             
             <!-- Configure Hybrid Settings -->
             <script>
+                // WARNING: In production, inject this secret securely from your backend template
+                // Never hardcode secrets in client-side code!
                 window.DEVTOOLS_TERMINATOR_CONFIG = {
                     terminationUrl: '/public/terminated.html',
                     serverValidation: true,
                     apiEndpoint: '/api/devtools-terminator',
-                    secret: 'super_secret_challenge_key_for_hmac' // Must match the backend secret!
+                    // This MUST match the backend secret!
+                    secret: '${process.env.DEVTOOLS_SECRET || 'CHANGE_THIS_IN_PRODUCTION'}'
                 };
             </script>
             
