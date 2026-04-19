@@ -15,8 +15,7 @@ The new hybrid version adds server-side validation to make bypassing significant
 - Server-side session validation
 - Cryptographic proof of execution
 - Audit trail of security events
-- Script integrity verification
-- JavaScript-disabled detection
+- Script integrity collection (client sends hash to server)
 
 **[See Hybrid Setup Guide](docs/HYBRID_SETUP.md)**
 
@@ -60,8 +59,7 @@ Devtools-Terminator-main/
 │   └── types/                    # TypeScript definitions
 │       └── devtools-terminator.d.ts        # Type definitions
 ├── public/                       # Public assets
-│   ├── terminated.html           # Termination page
-│   └── noscript-handler.html     # JavaScript detection
+│   └── terminated.html           # Termination page
 ├── examples/                     # Demo files
 │   ├── demo.html                 # Interactive demo
 │   ├── server-example.js         # Server demo
@@ -96,7 +94,6 @@ public/terminated.html               <- Termination page
 src/client/devtools-terminator-hybrid.js   <- Enhanced client (15KB)
 src/server/devtools-terminator-server.js   <- Server module (10KB)
 public/terminated.html                     <- Termination page
-public/noscript-handler.html              <- JavaScript detection
 ```
 
 ### Optional Files
@@ -138,7 +135,7 @@ assets/                             <- Icons (optional)
 
 Sometimes you need to protect client-side code from inspection. Whether it's proprietary algorithms, sensitive business logic, or API keys in a demo environment, this library provides a robust solution. It uses three independent detection methods to catch DevTools access and immediately terminates the session.
 
-This isn't security theater. The code is battle-tested in production on the Rox AI platform.
+This isn't security theater. The code is battle-tested in production environments.
 
 ---
 
@@ -162,8 +159,7 @@ This isn't security theater. The code is battle-tested in production on the Rox 
 - **Session tracking**: Server tracks and enforces valid sessions
 - **Audit trail**: Log all security events server-side
 - **Bypass resistant**: Much harder to circumvent than client-only
-- **Script integrity**: Detects if user modifies the protection script
-- **NoScript detection**: Terminates session if JavaScript is disabled
+- **Script integrity collection**: Client sends script hash to server for audit trail
 
 **Which version should you use?**
 - **Client-only:** Simple setup, no server required, good for demos and static sites
@@ -511,8 +507,7 @@ Contributions are welcome! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guide
 - Hybrid client-server mode with server-side validation
 - Challenge-response authentication
 - Heartbeat monitoring
-- Script integrity verification
-- NoScript detection
+- Script integrity collection (client sends hash to server)
 - Security event logging
 - New documentation: HYBRID_SETUP.md, GETTING_STARTED.md, WHICH_FILES.md
 
@@ -558,4 +553,4 @@ See [LICENSE](LICENSE) for full text.
 
 ---
 
-**Created by Mohammad Faiz** | Extracted from the Rox AI platform and open-sourced for the developer community.
+**Created by Mohammad Faiz** | Open-sourced for the developer community.
