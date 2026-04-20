@@ -13,6 +13,7 @@ DevTools Terminator is designed as a **highly resilient deterrent**, not a subst
 - Stop advanced reverse-engineers who compile custom browsers or modify the Chrome binary directly.
 - Protect data sent in the clear over HTTP (Use HTTPS).
 - Guarantee 100% impenetrability against completely headless browser scripts (e.g., Puppeteer) configured explicitly to bypass debugging checks.
+- Turn a browser-visible token into a trustworthy secret. Keep authorization decisions on the server and use Hybrid mode as an additional signal, not the primary control.
 
 ## Reporting Vulnerabilities
 If you discover a logic flaw or bypass that allows standard DevTools to be opened without triggering termination on a supported browser, please open an issue in the main repository.
