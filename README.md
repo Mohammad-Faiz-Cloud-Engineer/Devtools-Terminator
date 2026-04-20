@@ -17,6 +17,8 @@ The new hybrid version adds server-side validation to make bypassing significant
 - Audit trail of security events
 - Script integrity collection (client sends hash to server)
 
+Important security note: the current hybrid flow still ships a browser-visible HMAC input to the client. That means it can provide tamper evidence and server correlation, but it must not be treated as a standalone authentication or authorization control.
+
 **[See Hybrid Setup Guide](docs/HYBRID_SETUP.md)**
 
 ---
@@ -73,7 +75,6 @@ Devtools-Terminator-main/
 │   ├── WHICH_FILES.md            # File selection guide
 │   ├── HYBRID_SETUP.md           # Advanced setup
 │   ├── SECURITY.md               # Security policy
-│   ├── SECURITY_CHECKLIST.md     # Production deployment checklist
 │   ├── QUICK_START.md            # Quick start
 │   ├── CHANGELOG.md              # Version history
 │   ├── CONTRIBUTING.md           # Contribution guide
@@ -144,7 +145,7 @@ assets/                             <- Icons (optional)
 
 Sometimes you need to protect client-side code from inspection. Whether it's proprietary algorithms, sensitive business logic, or API keys in a demo environment, this library provides a robust solution. It uses three independent detection methods to catch DevTools access and immediately terminates the session.
 
-This isn't security theater. The code is battle-tested in production environments.
+This library is a deterrent and monitoring control. It should complement, not replace, standard server-side authorization and transport security.
 
 ---
 
