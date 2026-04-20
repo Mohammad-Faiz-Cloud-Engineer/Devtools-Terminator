@@ -119,7 +119,7 @@ ls -lh devtools-terminator.js
 dir devtools-terminator.js
 ```
 
-See [TESTING.md](../TESTING.md) for comprehensive testing procedures.
+Use the example pages and `npm test` for the currently available verification steps.
 
 ## Browser Support
 
