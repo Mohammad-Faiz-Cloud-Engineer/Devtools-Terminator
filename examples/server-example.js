@@ -11,7 +11,13 @@ const session = require('express-session');
 const devtoolsTerminator = require('../src/server/devtools-terminator-server');
 
 const app = express();
-const PORT = 3000;
+const PORT = Number.parseInt(process.env.PORT, 10) || 3000;
+const SESSION_SECRET = process.env.SESSION_SECRET;
+const DEVTOOLS_SECRET = process.env.DEVTOOLS_SECRET;
+
+if (!SESSION_SECRET || !DEVTOOLS_SECRET) {
+    throw new Error('SESSION_SECRET and DEVTOOLS_SECRET must be set before running examples/server-example.js');
+}
 
 // SECURITY WARNING: This is a demo file. In production:
 // 1. Use strong random secrets from environment variables
@@ -22,25 +28,22 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.text()); // Important for parsing navigator.sendBeacon string payloads
 app.use(session({
-    // WARNING: Use environment variable in production!
-    // Generate: openssl rand -hex 32
-    secret: process.env.SESSION_SECRET || 'CHANGE_THIS_IN_PRODUCTION',
+    secret: SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    name: 'dt.sid',
     cookie: { 
         // WARNING: Requires HTTPS in production! Set NODE_ENV=production
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true, // Prevent client-side JavaScript access to cookies
-        sameSite: 'strict' // CSRF protection
+        sameSite: 'strict', // CSRF protection
+        maxAge: 60 * 60 * 1000
     }
 }));
 
 // 2. Configure and apply DevTools Terminator Server Middleware
 const dtConfig = {
-    // WARNING: Use environment variable in production!
-    // Generate: openssl rand -hex 32
-    // This MUST match the client config secret!
-    secret: process.env.DEVTOOLS_SECRET || 'CHANGE_THIS_IN_PRODUCTION',
+    secret: DEVTOOLS_SECRET,
     apiPath: '/api/devtools-terminator',
     onTerminate: (req, sessionId, code) => {
         // This hook runs on the server the moment DevTools is detected or a heartbeat fails.
@@ -69,14 +72,13 @@ app.get('/', (req, res) => {
             
             <!-- Configure Hybrid Settings -->
             <script>
-                // WARNING: In production, inject this secret securely from your backend template
-                // Never hardcode secrets in client-side code!
+                // Demo-only token injection. This value is visible to the browser and must not
+                // be treated as an authentication secret in a real deployment.
                 window.DEVTOOLS_TERMINATOR_CONFIG = {
                     terminationUrl: '/public/terminated.html',
                     serverValidation: true,
                     apiEndpoint: '/api/devtools-terminator',
-                    // This MUST match the backend secret!
-                    secret: '${process.env.DEVTOOLS_SECRET || 'CHANGE_THIS_IN_PRODUCTION'}'
+                    secret: '${DEVTOOLS_SECRET}'
                 };
             </script>
             
