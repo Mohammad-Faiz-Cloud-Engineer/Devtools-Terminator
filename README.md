@@ -1,5 +1,7 @@
 # DevTools Terminator
 
+[![Tests](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/actions/workflows/test.yml/badge.svg)](https://github.com/Mohammad-Faiz-Cloud-Engineer/Devtools-Terminator/actions/workflows/test.yml)
+
 A lightweight JavaScript library that detects when browser Developer Tools are opened and terminates the user session. Now available in two versions: client-only and hybrid client-server for enhanced security.
 
 **Version:** 2.1.0  
