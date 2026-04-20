@@ -37,8 +37,7 @@ Complete Express server demonstrating hybrid client-server protection.
 
 **To run:**
 ```bash
-# Install dependencies
-cd examples
+# Install dependencies from the repository root
 npm install
 
 # Start server
@@ -55,6 +54,8 @@ npm start
 - Security event logging
 - Interactive demo
 
+Security note: the demo injects a browser-visible token so you can exercise the heartbeat flow locally. That token is not suitable as a production authentication secret.
+
 ### TypeScript Examples
 
 #### typescript-demo.ts
@@ -63,13 +64,9 @@ Comprehensive TypeScript examples (12 patterns) demonstrating type-safe usage.
 #### typescript-demo.html
 Interactive browser demo showing TypeScript integration.
 
-#### typescript-test.ts
-Type checking tests to verify TypeScript definitions.
-
 **To compile:**
 ```bash
-cd examples
-tsc
+tsc examples/typescript-demo.ts --target ES2020 --lib DOM,ES2020
 ```
 
 ## Customization
