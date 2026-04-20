@@ -20,8 +20,8 @@
 
     // 1. Atomic state locks to prevent race conditions or infinite termination loops
     let isTerminated = false;
+    let hasInitialized = false;
     const intervals = [];
-    const timeouts = [];
 
     // 2. Default Configuration
     const defaultConfig = {
@@ -33,11 +33,27 @@
         onTerminate: null
     };
 
-    let config = { ...defaultConfig };
+    function sanitizeConfigValue(rawConfig) {
+        const nextConfig = { ...defaultConfig, ...(rawConfig || {}) };
+        const parsedInterval = Number.parseInt(nextConfig.checkInterval, 10);
+        nextConfig.checkInterval = Number.isFinite(parsedInterval) && parsedInterval >= 50 && parsedInterval <= 5000
+            ? parsedInterval
+            : defaultConfig.checkInterval;
+        nextConfig.terminationUrl = typeof nextConfig.terminationUrl === 'string' && nextConfig.terminationUrl.trim() !== ''
+            ? nextConfig.terminationUrl.trim()
+            : defaultConfig.terminationUrl;
+        nextConfig.enableWindowSizeCheck = Boolean(nextConfig.enableWindowSizeCheck);
+        nextConfig.enableKeyboardBlock = Boolean(nextConfig.enableKeyboardBlock);
+        nextConfig.disableOnMobile = Boolean(nextConfig.disableOnMobile);
+        nextConfig.onTerminate = typeof nextConfig.onTerminate === 'function' ? nextConfig.onTerminate : null;
+        return nextConfig;
+    }
+
+    let config = sanitizeConfigValue();
 
     // Extend config from global if exists before freeze
     if (typeof window !== 'undefined' && window.DEVTOOLS_TERMINATOR_CONFIG) {
-        config = { ...config, ...window.DEVTOOLS_TERMINATOR_CONFIG };
+        config = sanitizeConfigValue(window.DEVTOOLS_TERMINATOR_CONFIG);
     }
 
     // Freeze configuration API to prevent malicious external tampering
@@ -125,7 +141,6 @@
 
             // Clear loops to prevent memory leaks / double executions
             intervals.forEach(clearInterval);
-            timeouts.forEach(clearTimeout);
 
             // Execute custom callback if provided
             if (typeof config.onTerminate === 'function') {
@@ -225,10 +240,11 @@
 
             // Block Text Selection EXCEPT inside valid user inputs
             window.addEventListener('selectstart', (e) => {
-                const target = e.target;
-                const isInput = target.tagName === 'INPUT' || 
-                                target.tagName === 'TEXTAREA' || 
-                                target.isContentEditable;
+                const target = e.target && e.target.nodeType === 1 ? e.target : e.target && e.target.parentElement;
+                const tagName = target && target.tagName;
+                const isInput = tagName === 'INPUT' || 
+                                tagName === 'TEXTAREA' || 
+                                Boolean(target && target.isContentEditable);
                 if (!isInput) {
                     e.preventDefault();
                     return false;
@@ -246,7 +262,8 @@
 
     // Initialize execution flow
     function init() {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || hasInitialized) return;
+        hasInitialized = true;
 
         Detector.init();
         UIProtector.init();
