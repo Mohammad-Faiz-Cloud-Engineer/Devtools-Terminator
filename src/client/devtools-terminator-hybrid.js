@@ -25,8 +25,11 @@
 
     // 1. Atomic state locks to prevent race conditions or infinite termination loops
     let isTerminated = false;
+    let hasInitialized = false;
     const intervals = [];
-    const timeouts = [];
+    const DEFAULT_SECRET = 'default_challenge_secret';
+    const HEARTBEAT_INTERVAL_MS = 30000;
+    const FETCH_TIMEOUT_MS = 5000;
 
     // 2. Default Configuration
     const defaultConfig = {
@@ -41,15 +44,41 @@
         // This default exists only for testing. In production, you MUST set a strong secret.
         // Generate strong secret: openssl rand -hex 32
         // Override via window.DEVTOOLS_TERMINATOR_CONFIG = { secret: 'your_secret_here' }
-        secret: 'default_challenge_secret',
+        secret: DEFAULT_SECRET,
         onTerminate: null
     };
 
-    let config = { ...defaultConfig };
+    function sanitizeConfigValue(rawConfig) {
+        const nextConfig = { ...defaultConfig, ...(rawConfig || {}) };
+        const parsedInterval = Number.parseInt(nextConfig.checkInterval, 10);
+        nextConfig.checkInterval = Number.isFinite(parsedInterval) && parsedInterval >= 50 && parsedInterval <= 5000
+            ? parsedInterval
+            : defaultConfig.checkInterval;
+        nextConfig.terminationUrl = typeof nextConfig.terminationUrl === 'string' && nextConfig.terminationUrl.trim() !== ''
+            ? nextConfig.terminationUrl.trim()
+            : defaultConfig.terminationUrl;
+        nextConfig.apiEndpoint = typeof nextConfig.apiEndpoint === 'string' && nextConfig.apiEndpoint.trim() !== ''
+            ? nextConfig.apiEndpoint.trim().replace(/\/+$/, '')
+            : defaultConfig.apiEndpoint;
+        nextConfig.enableWindowSizeCheck = Boolean(nextConfig.enableWindowSizeCheck);
+        nextConfig.enableKeyboardBlock = Boolean(nextConfig.enableKeyboardBlock);
+        nextConfig.disableOnMobile = Boolean(nextConfig.disableOnMobile);
+        nextConfig.serverValidation = Boolean(nextConfig.serverValidation);
+        nextConfig.secret = typeof nextConfig.secret === 'string' ? nextConfig.secret.trim() : '';
+        nextConfig.onTerminate = typeof nextConfig.onTerminate === 'function' ? nextConfig.onTerminate : null;
+        return nextConfig;
+    }
+
+    let config = sanitizeConfigValue();
 
     // Extend config from global if exists before freeze
     if (typeof window !== 'undefined' && window.DEVTOOLS_TERMINATOR_CONFIG) {
-        config = { ...config, ...window.DEVTOOLS_TERMINATOR_CONFIG };
+        config = sanitizeConfigValue(window.DEVTOOLS_TERMINATOR_CONFIG);
+    }
+
+    if (config.serverValidation && config.secret === DEFAULT_SECRET) {
+        config.serverValidation = false;
+        console.warn('[DevTools Terminator] Hybrid serverValidation was disabled because no explicit client token was configured.');
     }
 
     // Freeze configuration API to prevent malicious external tampering
@@ -139,21 +168,36 @@
 
         async sendHeartbeat() {
             if (!config.serverValidation || !window.crypto || !window.crypto.subtle) return;
+            let timeoutId = null;
             try {
                 const fp = await this.getFingerprint();
                 const scriptHash = await this.checkScriptIntegrity();
                 const timestamp = Date.now().toString();
                 const payload = `${fp}:${scriptHash}:${timestamp}`;
                 const signature = await this.generateHMAC(payload, config.secret);
-
-                fetch(`${config.apiEndpoint}/heartbeat`, {
+                const controller = typeof AbortController === 'function' ? new AbortController() : null;
+                timeoutId = controller ? setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS) : null;
+                const response = await fetch(`${config.apiEndpoint}/heartbeat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ payload, signature }),
-                    keepalive: true
-                }).catch(() => {});
+                    keepalive: true,
+                    signal: controller ? controller.signal : undefined
+                });
+
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
+
+                if (response && response.status === 403) {
+                    Terminator.execute('SEC_DEVTOOLS_SERVER_403');
+                }
             } catch (e) {
                 // Silent catch: heartbeats should not disrupt the application
+            } finally {
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                }
             }
         },
 
@@ -229,7 +273,6 @@
 
             // Clear loops to prevent memory leaks / double executions
             intervals.forEach(clearInterval);
-            timeouts.forEach(clearTimeout);
 
             // Execute custom callback if provided
             if (typeof config.onTerminate === 'function') {
@@ -332,10 +375,11 @@
 
             // Block Text Selection EXCEPT inside valid user inputs
             window.addEventListener('selectstart', (e) => {
-                const target = e.target;
-                const isInput = target.tagName === 'INPUT' || 
-                                target.tagName === 'TEXTAREA' || 
-                                target.isContentEditable;
+                const target = e.target && e.target.nodeType === 1 ? e.target : e.target && e.target.parentElement;
+                const tagName = target && target.tagName;
+                const isInput = tagName === 'INPUT' || 
+                                tagName === 'TEXTAREA' || 
+                                Boolean(target && target.isContentEditable);
                 if (!isInput) {
                     e.preventDefault();
                     return false;
@@ -353,7 +397,8 @@
 
     // Initialize execution flow
     function init() {
-        if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined' || hasInitialized) return;
+        hasInitialized = true;
 
         Detector.init();
         UIProtector.init();
@@ -378,7 +423,7 @@
             // Heartbeat interval: 30 seconds (server timeout is 45s)
             createInterval(() => {
                 if (!isTerminated) HybridSec.sendHeartbeat();
-            }, 30000);
+            }, HEARTBEAT_INTERVAL_MS);
             
             // Initial boot ping
             HybridSec.sendHeartbeat();
