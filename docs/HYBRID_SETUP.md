@@ -1,6 +1,6 @@
 # Hybrid Server Validation Setup
 
-The Hybrid model uses the Web Crypto API to sign heartbeat payloads and an Express backend to validate those signatures, ensuring that an attacker hasn't disabled the client-side script.
+The Hybrid model uses the Web Crypto API to sign heartbeat payloads and an Express backend to validate those signatures. Because the browser receives the signing input, this mode should be treated as tamper evidence and session correlation, not as a substitute for server-side authentication.
 
 ## Step 1: Backend Integration
 Import the middleware into your Express app. Ensure your Express app already uses a session tracking mechanism (like `express-session` or standard cookies).
@@ -25,7 +25,7 @@ Use the hybrid library and configure it to match the server:
     window.DEVTOOLS_TERMINATOR_CONFIG = {
         serverValidation: true,
         apiEndpoint: '/api/devtools-terminator',
-        secret: 'MATCHING_SECRET_HERE' // Should be dynamically templated securely
+    secret: 'MATCHING_BROWSER_VISIBLE_TOKEN' // Demo token only; visible to the browser
     };
 </script>
 <script src="src/client/devtools-terminator-hybrid.js"></script>
