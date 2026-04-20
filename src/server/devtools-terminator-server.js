@@ -9,24 +9,43 @@
 
 const crypto = require('crypto');
 
+const DEFAULT_SECRET = 'default_challenge_secret';
+const DEFAULT_HEARTBEAT_TIMEOUT_MS = 45000;
+const DEFAULT_CLEANUP_INTERVAL_MS = 60000;
+const DEFAULT_REPLAY_ATTACK_WINDOW_MS = 10000;
+const DEFAULT_MIN_HEARTBEAT_INTERVAL_MS = 500;
+const MAX_PAYLOAD_LENGTH = 1024;
+const HEX_64_PATTERN = /^[a-f0-9]{64}$/i;
+const CODE_PATTERN = /^[A-Z0-9_]{3,64}$/;
+
 class DevToolsTerminatorServer {
     constructor(config = {}) {
-        // Configuration constants
-        const HEARTBEAT_TIMEOUT_MS = 45000; // 45 seconds (client sends every 30s)
-        const CLEANUP_INTERVAL_MS = 60000;  // 60 seconds
-        const REPLAY_ATTACK_WINDOW_MS = 10000; // 10 seconds
-        
         this.config = {
-            secret: process.env.DEVTOOLS_SECRET || 'default_challenge_secret',
-            heartbeatTimeout: HEARTBEAT_TIMEOUT_MS,
+            secret: process.env.DEVTOOLS_SECRET || DEFAULT_SECRET,
+            heartbeatTimeout: DEFAULT_HEARTBEAT_TIMEOUT_MS,
             apiPath: '/api/devtools-terminator',
             onTerminate: null,
-            replayAttackWindow: REPLAY_ATTACK_WINDOW_MS,
+            replayAttackWindow: DEFAULT_REPLAY_ATTACK_WINDOW_MS,
+            minHeartbeatInterval: DEFAULT_MIN_HEARTBEAT_INTERVAL_MS,
             ...config
         };
+
+        this.config.apiPath = this.normalizeApiPath(this.config.apiPath);
+        this.config.heartbeatTimeout = this.normalizePositiveInteger(
+            this.config.heartbeatTimeout,
+            DEFAULT_HEARTBEAT_TIMEOUT_MS
+        );
+        this.config.replayAttackWindow = this.normalizePositiveInteger(
+            this.config.replayAttackWindow,
+            DEFAULT_REPLAY_ATTACK_WINDOW_MS
+        );
+        this.config.minHeartbeatInterval = this.normalizePositiveInteger(
+            this.config.minHeartbeatInterval,
+            DEFAULT_MIN_HEARTBEAT_INTERVAL_MS
+        );
         
         // SECURITY WARNING: Fail fast if using default secret in production
-        if (this.config.secret === 'default_challenge_secret' && process.env.NODE_ENV === 'production') {
+        if (this.config.secret === DEFAULT_SECRET && process.env.NODE_ENV === 'production') {
             throw new Error('[DevTools Terminator] CRITICAL: Default secret detected in production! Set DEVTOOLS_SECRET environment variable.');
         }
 
@@ -36,7 +55,10 @@ class DevToolsTerminatorServer {
         
         // Start cleanup interval for stale sessions (prevent memory leaks)
         // Call destroy() method on server shutdown to clear this interval
-        this.cleanupInterval = setInterval(() => this.cleanupStaleSessions(), CLEANUP_INTERVAL_MS);
+        this.cleanupInterval = setInterval(() => this.cleanupStaleSessions(), DEFAULT_CLEANUP_INTERVAL_MS);
+        if (typeof this.cleanupInterval.unref === 'function') {
+            this.cleanupInterval.unref();
+        }
     }
 
     /**
@@ -46,10 +68,100 @@ class DevToolsTerminatorServer {
         clearInterval(this.cleanupInterval);
     }
 
+    normalizeApiPath(apiPath) {
+        if (typeof apiPath !== 'string' || apiPath.trim() === '') {
+            return '/api/devtools-terminator';
+        }
+
+        const normalized = apiPath.trim().replace(/\/+$/, '');
+        return normalized.startsWith('/') ? normalized : `/${normalized}`;
+    }
+
+    normalizePositiveInteger(value, fallback) {
+        const parsed = Number.parseInt(value, 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+    }
+
+    getSessionId(req) {
+        const directSessionId = typeof req.sessionID === 'string' && req.sessionID.trim() !== ''
+            ? req.sessionID.trim()
+            : null;
+        if (directSessionId) {
+            return directSessionId;
+        }
+
+        const cookieSessionId = typeof req.cookies?.['connect.sid'] === 'string' && req.cookies['connect.sid'].trim() !== ''
+            ? req.cookies['connect.sid'].trim()
+            : null;
+        if (cookieSessionId) {
+            return cookieSessionId;
+        }
+
+        // Prefer a stable, request-scoped fingerprint over raw IP so users behind NAT do not share state.
+        const fallbackSource = [
+            req.headers['user-agent'] || '',
+            req.headers.cookie || '',
+            req.ip || ''
+        ].join('|');
+
+        return `anon:${crypto.createHash('sha256').update(fallbackSource).digest('hex')}`;
+    }
+
+    parsePayload(payload) {
+        if (typeof payload !== 'string' || payload.length === 0 || payload.length > MAX_PAYLOAD_LENGTH) {
+            return null;
+        }
+
+        const parts = payload.split(':');
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        const [fingerprint, scriptHash, timestampText] = parts;
+        if (!HEX_64_PATTERN.test(fingerprint) || !HEX_64_PATTERN.test(scriptHash)) {
+            return null;
+        }
+
+        if (!/^\d{10,16}$/.test(timestampText)) {
+            return null;
+        }
+
+        const timestamp = Number.parseInt(timestampText, 10);
+        if (!Number.isFinite(timestamp)) {
+            return null;
+        }
+
+        return { fingerprint, scriptHash, timestamp };
+    }
+
+    parseTerminationCode(body) {
+        let code = 'SEC_DEVTOOLS_UNKNOWN';
+
+        if (body && typeof body === 'object' && typeof body.code === 'string') {
+            code = body.code;
+        } else if (typeof body === 'string' && body.length <= MAX_PAYLOAD_LENGTH) {
+            try {
+                const parsed = JSON.parse(body);
+                if (parsed && typeof parsed.code === 'string') {
+                    code = parsed.code;
+                }
+            } catch (e) {
+                return 'SEC_DEVTOOLS_UNKNOWN';
+            }
+        }
+
+        const normalizedCode = String(code).trim().toUpperCase();
+        return CODE_PATTERN.test(normalizedCode) ? normalizedCode : 'SEC_DEVTOOLS_UNKNOWN';
+    }
+
     /**
      * Verify HMAC-SHA256 signature using timing-safe comparison
      */
     verifySignature(payload, signature) {
+        if (typeof signature !== 'string' || !HEX_64_PATTERN.test(signature)) {
+            return false;
+        }
+
         try {
             const expectedSignature = crypto
                 .createHmac('sha256', this.config.secret)
@@ -86,8 +198,9 @@ class DevToolsTerminatorServer {
      * Terminate a session on the server side
      */
     terminateSession(sessionId, req, code = 'SEC_DEVTOOLS_UNKNOWN') {
-        let sessionData = this.sessions.get(sessionId) || {};
+        const sessionData = this.sessions.get(sessionId) || {};
         sessionData.isTerminated = true;
+        sessionData.lastTerminatedAt = Date.now();
         this.sessions.set(sessionId, sessionData);
 
         // Audit Logging
@@ -108,7 +221,7 @@ class DevToolsTerminatorServer {
     middleware() {
         return (req, res, next) => {
             // Support Express sessions, cookies, or fallback to IP for identification
-            const sessionId = req.sessionID || req.cookies?.['connect.sid'] || req.ip;
+            const sessionId = this.getSessionId(req);
 
             // Enforce protection on standard routes (Not the API itself)
             if (!req.path.startsWith(this.config.apiPath)) {
@@ -145,8 +258,13 @@ class DevToolsTerminatorServer {
     handleHeartbeat(req, res, sessionId) {
         const { payload, signature } = req.body || {};
 
-        if (!payload || !signature) {
+        if (typeof payload !== 'string' || typeof signature !== 'string') {
             return res.status(400).json({ error: 'Invalid payload or signature format' });
+        }
+
+        const parsedPayload = this.parsePayload(payload);
+        if (!parsedPayload) {
+            return res.status(400).json({ error: 'Malformed cryptographic payload' });
         }
 
         // Verify cryptographic signature
@@ -156,33 +274,29 @@ class DevToolsTerminatorServer {
             return res.status(403).json({ error: 'Invalid cryptographic signature' });
         }
 
-        // Parse payload (Format: fingerprint:scriptHash:timestamp)
-        const parts = payload.split(':');
-        if (parts.length < 3) {
-            return res.status(400).json({ error: 'Malformed cryptographic payload' });
-        }
-
-        const [fingerprint, scriptHash, timestamp] = parts;
-        const timeDiff = Math.abs(Date.now() - parseInt(timestamp, 10));
-
         // Replay attack protection (timestamp must be within configured window)
+        const timeDiff = Math.abs(Date.now() - parsedPayload.timestamp);
         if (timeDiff > this.config.replayAttackWindow) {
             console.error(`[DevTools Terminator] [WARNING] Replay attack detected from ${sessionId} (Time diff: ${timeDiff}ms)`);
             return res.status(403).json({ error: 'Timestamp expired (Replay Attack Prevention)' });
         }
 
         // Verify session hasn't been terminated previously
-        let sessionData = this.sessions.get(sessionId);
+        const sessionData = this.sessions.get(sessionId);
         if (sessionData && sessionData.isTerminated) {
             return res.status(403).json({ error: 'Session already marked as terminated' });
+        }
+
+        if (sessionData && sessionData.lastHeartbeat && Date.now() - sessionData.lastHeartbeat < this.config.minHeartbeatInterval) {
+            return res.status(429).json({ error: 'Heartbeat rate limit exceeded' });
         }
 
         // Update active session state
         this.sessions.set(sessionId, {
             lastHeartbeat: Date.now(),
             isTerminated: false,
-            fingerprint,
-            scriptHash
+            fingerprint: parsedPayload.fingerprint,
+            scriptHash: parsedPayload.scriptHash
         });
 
         return res.status(200).json({ status: 'ok', secure: true });
@@ -192,20 +306,7 @@ class DevToolsTerminatorServer {
      * Handle termination beacon from client
      */
     handleTerminate(req, res, sessionId) {
-        let code = 'SEC_DEVTOOLS_UNKNOWN';
-        
-        try {
-            // Handle JSON body if parsed, or fallback to raw string if express.text() is used
-            if (req.body && req.body.code) {
-                code = req.body.code;
-            } else if (typeof req.body === 'string') {
-                const parsed = JSON.parse(req.body);
-                if (parsed.code) code = parsed.code;
-            }
-        } catch (e) {
-            // Parsing error is acceptable for beacons; fallback code used
-        }
-
+        const code = this.parseTerminationCode(req.body);
         this.terminateSession(sessionId, req, code);
         return res.status(200).json({ status: 'terminated' });
     }
