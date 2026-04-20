@@ -11,6 +11,9 @@ pnpm-lock.yaml
 # Build outputs
 dist/
 build/
+target/
+.next/
+__pycache__/
 *.map
 *.tsbuildinfo
 
@@ -19,6 +22,7 @@ build/
 
 # IDE
 .vscode/
+.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -35,6 +39,7 @@ Thumbs.db
 desktop.ini
 *.tmp
 *.temp
+*.pid
 
 # Testing
 coverage/
@@ -42,21 +47,22 @@ coverage/
 *.lcov
 test-results/
 junit.xml
+.cache/
 
 # Linting
 .eslintcache
 
 # Environment
 *.log
-.env
-.env.local
-.env.*.local
-.env.test
-.env.production
-.env.development
+.env*
+*.pem
+*.key
+*credentials*.json
+*adminsdk*.json
 
 # Misc
 *.bak
 *.orig
 *_backup.*
 *_old.*
+*_copy.*
